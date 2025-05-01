@@ -6,7 +6,7 @@
 # alias zoc="cd /Users/nirmal/Documents"
 # alias zesk="cd /Users/nirmal/Desktop"
 # alias zown="cd /Users/nirmal/Downloads"
-# alias zorg="cd /Users/nirmal/ghq/github.com/ndmekala/organizer"
+# alias zorg="cd /Users/nirmal/ghq/github.com/nirmal-mekala/organizer"
 
 ##################
 # local vars
@@ -14,7 +14,7 @@
 
 # export TODO_SH="/opt/homebrew/opt/todo-txt/bin"
 # export POWERLEVEL_THEME_LOCATION="/opt/homebrew/opt/powerlevel10k/powerlevel10k.zsh-theme"
-# export ORG_DIRECTORY="/Users/nirmal/ghq/github.com/ndmekala/organizer"
+# export ORG_DIRECTORY="/Users/nirmal/ghq/github.com/nirmal-mekala/organizer"
 # POWERLEVEL9K_DISABLE_GITSTATUS=true
 # export LANG=en_US.UTF-8
 # export LC_ALL=en_US.UTF-8

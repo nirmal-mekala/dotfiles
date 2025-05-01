@@ -7,7 +7,7 @@
 The script in this directory assumes the directory exists at `~/.dotfiles`. Clone the repo to that location.
 
 ```sh
-git clone https://github.com/ndmekala/dotfiles ~/.dotfiles
+git clone https://github.com/nirmal-mekala/dotfiles ~/.dotfiles
 ```
 
 Review the setup script. Then `cd` into the directory and run the setup command.
@@ -43,7 +43,7 @@ I’ve used these dots as a base to configure macOS, Linux, and OpenBSD systems.
 
 ## See Also
 
-- These dotfiles and script are used as part of [`wizardry`](https://github.com/ndmekala/wizardry), a script I use to configure and manage my macOS systems
+- These dotfiles and script are used as part of [`wizardry`](https://github.com/nirmal-mekala/wizardry), a script I use to configure and manage my macOS systems
 - `docs/sources.md` for more info on what all is included here
 
 ## Acknowledgements
