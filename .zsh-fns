@@ -225,3 +225,7 @@ function rmnl() {
 function wordcount_diff() {
   git diff --unified=0 | grep '^+[^+]' | sed 's/^+//' | wc -w
 }
+
+function vzf() {
+  nvim $(fzf)
+}
