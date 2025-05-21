@@ -62,6 +62,11 @@ require('telescope').setup{
   defaults = {
     layout_strategy = 'vertical',
     layout_config = { height = 0.95 },
+    mappings = {
+      i = {
+        ['<CR>'] = require('telescope.actions').select_tab,
+      }
+    }
   },
 }
 END
