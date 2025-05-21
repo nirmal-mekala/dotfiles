@@ -55,7 +55,7 @@ runtime ./todo/txt.vim
 " ===============
 
 nnoremap <leader>3 <cmd>Telescope live_grep<cr>
-nnoremap <leader>4 <cmd>Telescope find_files<cr>
+nnoremap <leader>4 <cmd>Telescope git_files<cr>
 
 lua << END
 require('telescope').setup{
