@@ -149,24 +149,24 @@ bwutil () {
   check_command fzf || return 1
   check_command fx || return 1
 
-  bw_items=$(mktemp)
-  bw_name_id=$(mktemp)
-  bw_id=$(mktemp)
+  # password data in a variable
+  bw_items_json="$(bw list items)"
+  # convert to name and id
+  bw_name_id="$(printf '%s\n' "$bw_items_json"| fx '.map(x => [x.name.slice(0, 45), " ".repeat(50 - x.name.slice(0,45).length), x.id].join(""))' list)"
+  # get a specific id
+  bw_id="$(printf '%s\n' "$bw_name_id" | fzf | cut -c 51-)"
 
-  bw list items > $bw_items
-  cat $bw_items | fx '.map(x => [x.name.slice(0, 45), " ".repeat(50 - x.name.slice(0,45).length), x.id].join(""))' list > $bw_name_id
-  cat $bw_name_id | fzf | cut -c 51- > $bw_id
-  username=$(cat $bw_items | fx ".find(x => x.id === \"$(cat $bw_id)\")?.login?.username" | tr -d '\n')
+  username=$(printf '%s\n' "$bw_items_json" | fx ".find(x => x.id === \"$bw_id\")?.login?.username" | tr -d '\n')
+  password=$(printf '%s\n' "$bw_items_json" | fx ".find(x => x.id === \"$bw_id\")?.login?.password" | tr -d '\n')
+
+  # output
   echo "Username: $username"
-  password=$(cat $bw_items | fx ".find(x => x.id === \"$(cat $bw_id)\")?.login?.password" | tr -d '\n')
   if command -v pbcopy > /dev/null 2>&1; then
     echo -n $password | pbcopy
   else
     echo -n $password | xclip -selection clipboard
   fi
   echo "Password copied"
-
-  rm $bw_items $bw_name_id $bw_id
 }
 
 # timers
@@ -220,10 +220,6 @@ function th() {
 
 function rmnl() {
   awk '{printf "%s", $0}'
-}
-
-function wordcount_diff() {
-  git diff --unified=0 | grep '^+[^+]' | sed 's/^+//' | wc -w
 }
 
 function vzf() {
