@@ -223,5 +223,13 @@ function rmnl() {
 }
 
 function vzf() {
-  nvim $(fzf)
+  fzf --bind 'enter:become(nvim {})'
 }
+
+
+fh() {
+  # List history without numbers, reverse so newest are first,
+  # escape backslashes, then fuzzy-find and eval.
+  eval "$(fc -ln | tac | sed -E 's/\\/\\\\/g' | fzf)"
+}
+
