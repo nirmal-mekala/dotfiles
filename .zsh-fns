@@ -6,9 +6,7 @@ auto_add_commit_push () {
     git add -A && git commit -m "pushed via script $date_and_time" && git push
   else
     echo "What’s the matter with you?!"
-  fi
-}
-
+  fi }
 # Check if command is installed
 check_command() {
   local command_to_check="$1"
@@ -230,6 +228,6 @@ function vzf() {
 fh() {
   # List history without numbers, reverse so newest are first,
   # escape backslashes, then fuzzy-find and eval.
-  eval "$(fc -ln | tac | sed -E 's/\\/\\\\/g' | fzf)"
+  eval "$(fc -ln 1 | tac | sed -E 's/\\/\\\\/g' | fzf)"
 }
 
