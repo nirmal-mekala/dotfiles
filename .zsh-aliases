@@ -1,6 +1,7 @@
 # misc
 alias ql="qlmanage -p"
 alias sz="source ~/.zshrc"
+alias ws="tmux split-window -h -l 20" #writing split
 
 # Git Aliases
 alias ga="git add -A"
