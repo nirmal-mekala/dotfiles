@@ -2,7 +2,6 @@ call plug#begin(has('nvim') ? stdpath('data') . '/plugged' : '~/vim/plugged')
 
 Plug 'nvim-lualine/lualine.nvim'
 Plug 'preservim/vim-pencil'
-" Plug 'preservim/nerdtree'
 Plug 'ryanoasis/vim-devicons'
 Plug 'yuezk/vim-js'
 Plug 'maxmellon/vim-jsx-pretty/'
@@ -10,11 +9,6 @@ Plug 'overcache/NeoSolarized'
 Plug 'junegunn/goyo.vim'
 Plug 'tribela/vim-transparent'
 " Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'mattn/emmet-vim'
-" post install (yarn install | npm install) then load plugin only for editing supported files
-" Plug 'prettier/vim-prettier', { 'do': 'yarn install --frozen-lockfile --production' }
-
-" post install (yarn install | npm install) then load plugin only for editing supported files
 Plug 'prettier/vim-prettier', {
   \ 'do': 'yarn install --frozen-lockfile --production',
   \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'vue', 'svelte', 'yaml', 'html'] }
@@ -25,7 +19,7 @@ Plug 'NLKNguyen/papercolor-theme'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim', { 'branch': '0.1.x' }
 Plug 'Exafunction/codeium.vim', { 'branch': 'main' }
-" Plug 'dylanaraps/fff.vim'
+Plug 'https://github.com/ap/vim-css-color.git'
 
 call plug#end()
 
