@@ -40,6 +40,10 @@ nnoremap <leader>a :tabn 1<CR>
 nnoremap <leader>s :tabn 2<CR>
 nnoremap <leader>d :tabn 3<CR>
 nnoremap <leader>f :tabn 4<CR>
+nnoremap <leader>z :tabn 5<CR>
+nnoremap <leader>x :tabn 6<CR>
+nnoremap <leader>c :tabn 7<CR>
+nnoremap <leader>v :tabn 8<CR>
 
 " SOURCING VIM FILES
 " ==================
