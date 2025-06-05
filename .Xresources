@@ -20,7 +20,7 @@ XTerm*foreground: #d2d2d2
 
 !border
 XTerm*borderWidth: 3
-XTerm*borderColor: #af005f
+XTerm*borderColor: #222222
 
 
 !black
