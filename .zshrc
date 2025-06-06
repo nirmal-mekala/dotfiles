@@ -20,4 +20,3 @@ autoload -Uz compinit && compinit # autocomplete
 bindkey -r "^X" # give vim ctrl x
 export EDITOR="nvim" # neovim default editor
 setopt HIST_IGNORE_SPACE
-stty -ixon # disable ctrl-s so vim can use it
