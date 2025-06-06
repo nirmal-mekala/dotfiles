@@ -174,8 +174,8 @@ gaps inner 10
 gaps outer 10
 exec_always --no-startup-id xsetroot -solid "#5f8787"
 exec_always --no-startup-id setxkbmap -option caps:swapescape
-# right command key on 13" ~2012 mbp to control
-exec_always --no-startup-id xmodmap -e "remove mod4 = Super_R" -e "keycode 116 = Control_R" -e "add control = Control_R"
+# right command key to control (13" ~2012 mbp openbsd keycode 116, 11" mba ubuntu keybocde 134 )
+exec_always --no-startup-id xmodmap -e "remove mod4 = Super_R" -e "keycode 116 = Control_R" -e "keycode 134 = Control_R" -e "add control = Control_R"
 exec_always --no-startup-id bash -c '[[ ! -f ~/.config/i3/config.local ]] && touch ~/.config/i3/config.local'
 include ./config.local
 
