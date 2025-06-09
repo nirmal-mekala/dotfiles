@@ -36,11 +36,11 @@ set foldmethod=indent
 set foldlevel=99
 filetype plugin on
 syntax on
-nnoremap <C-s> <C-w>
-nnoremap <C-q> :tabn 1<CR>
-nnoremap <C-w> :tabn 2<CR>
-nnoremap <C-e> :tabn 3<CR>
-nnoremap <C-r> :tabn 4<CR>
+" leader adsf tabs 1 2 3 4
+nnoremap <leader>a :tabn 1<CR>
+nnoremap <leader>s :tabn 2<CR>
+nnoremap <leader>d :tabn 3<CR>
+nnoremap <leader>f :tabn 4<CR>
 
 " SOURCING VIM FILES
 " ==================
