@@ -173,14 +173,51 @@ function play() {
   ffplay -nodisp -autoexit -af "volume=0.7" $1 > /dev/null 2>&1
 }
 
+# function parse_time_input() {
+#   if [ -z "$1" ]; then
+#     echo -n "Enter time expression (e.g. 1.5 * 30): "
+#     read input
+#     echo "$input" | bc
+#   else
+#     echo "$1"
+#   fi
+# }
+
+parse_time_input() {
+  local _target_var="$1"
+  local _arg="$2"
+  local _result
+
+  if [ -z "$_arg" ]; then
+    echo -n "Enter time expression (e.g. 1.5 * 30): "
+    read _input || return 1
+    _result=$(echo "$_input" | bc)
+  else
+    _result=$(echo "$_arg" | bc)
+  fi
+
+  # Assign to the passed variable name
+  printf -v "$_target_var" '%s' "$_result"
+}
+
+
 function ts() {
   check_command ffplay || return 1
   [ -e "$HOME/.timer/start.m4a" ] || { echo "Error: ~/.timer/start.m4a does not exist!" >&2; return 1; }
   [ -e "$HOME/.timer/end.m4a" ] || { echo "Error: ~/.timer/end.m4a does not exist!" >&2; return 1; }
 
+
+#  if [ -z "$1" ]; then
+#    time_input=$(parse_time_input)
+#  else
+#    time_input=$(parse_time_input "$1")
+#  fi
+
+  parse_time_input time_input "$1" || return 1
+
   play "$HOME/.timer/start.m4a"
 
-  end_time=$(( $(date +%s) + $1 ))
+  end_time=$(( $(date +%s) + $time_input ))
   while [ "$(date +%s)" -lt "$end_time" ]; do
     remaining=$(( end_time - $(date +%s) - 1 ))
     hours=$(( remaining / 3600 ))
@@ -209,11 +246,13 @@ function ts() {
 }
 
 function tm() {
-  ts $(( $1 * 60 )) "Timer set for $1 minutes"
+  parse_time_input time_input "$1" || return 1
+  ts $(( $time_input * 60 )) "Timer set for $time_input minutes"
 }
 
 function th() {
-  ts $(( $1 * 60 * 60 )) "Timer set for $1 hours"
+  parse_time_input time_input "$1" || return 1
+  ts $(( $time_input * 60 * 60 )) "Timer set for $time_input hours"
 }
 
 function rmnl() {
