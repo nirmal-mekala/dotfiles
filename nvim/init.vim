@@ -36,8 +36,13 @@ set foldmethod=indent
 set foldlevel=99
 filetype plugin on
 syntax on
-nnoremap <C-n> :tabn<CR>
-nnoremap <C-p> :tabp<CR>
+nnoremap <M-a> :tabn 1<CR>
+nnoremap <M-s> :tabn 2<CR>
+nnoremap <M-d> :tabn 3<CR>
+nnoremap <M-f> :tabn 4<CR>
+
+" complete markdown todo with done:YYMMDD and go to next line
+nnoremap <leader>x 0f]hrxla done:<C-R>=strftime('%y%m%d')<CR><ESC>0j
 
 " SOURCING VIM FILES
 " ==================
