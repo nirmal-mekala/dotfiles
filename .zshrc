@@ -18,5 +18,6 @@ check_command fzf && [[ $(printf '%s\n' $(fzf --version | awk '{print $1}') "0.4
 
 autoload -Uz compinit && compinit # autocomplete
 bindkey -r "^X" # give vim ctrl x
+bindkey -v '^?' backward-delete-char
 export EDITOR="nvim" # neovim default editor
 setopt HIST_IGNORE_SPACE
