@@ -45,6 +45,20 @@ nnoremap <C-p> :tabp<CR>
 
 " complete markdown todo with done:YYMMDD and go to next line
 nnoremap <leader>x 0f]hrxla done:<C-R>=strftime('%y%m%d')<CR><ESC>0j
+" cross out markdown todo
+nnoremap <leader>z 0f[i~~<ESC>A~~<ESC>0j
+
+lua << EOF
+vim.keymap.set("n", "<Esc>", function()
+  local msg = "Escape in normal mode!"
+  vim.notify(msg, vim.log.levels.WARN, {
+    title = "Escape Abuse",
+    timeout = 3000,
+  })
+  return "<Esc>"
+end, { expr = true, noremap = true })
+EOF
+
 
 " SOURCING VIM FILES
 " ==================
