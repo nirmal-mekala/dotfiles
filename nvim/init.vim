@@ -43,18 +43,68 @@ nnoremap <M-f> :tabn 4<CR>
 nnoremap <C-n> :tabn<CR>
 nnoremap <C-p> :tabp<CR>
 
+command! SV source $MYVIMRC | echo  "init.vim reloaded!"
+
 " complete markdown todo with done:YYMMDD and go to next line
 nnoremap <leader>x 0f]hrxla done:<C-R>=strftime('%y%m%d')<CR><ESC>0j
 " cross out markdown todo
 nnoremap <leader>z 0f[i~~<ESC>A~~<ESC>0j
 
+" TODO use init.lua
+" TODO organize stuff like this in separate files
 lua << EOF
+local function loud_notify(msg)
+  vim.schedule(function()
+    local buf = vim.api.nvim_create_buf(false, true)
+    local width = vim.o.columns
+    local height = vim.o.lines
+    local no_escape_width = 72
+    local spaces = string.rep(" ", math.max((width - no_escape_width) / 2, 0))
+
+    local lines = {
+spaces .. " ███▄    █  ▒█████     ▓█████   ██████  ▄████▄   ▄▄▄       ██▓███  ▓█████ ",
+spaces .. " ██ ▀█   █ ▒██▒  ██▒   ▓█   ▀ ▒██    ▒ ▒██▀ ▀█  ▒████▄    ▓██░  ██▒▓█   ▀ ",
+spaces .. "▓██  ▀█ ██▒▒██░  ██▒   ▒███   ░ ▓██▄   ▒▓█    ▄ ▒██  ▀█▄  ▓██░ ██▓▒▒███   ",
+spaces .. "▓██▒  ▐▌██▒▒██   ██░   ▒▓█  ▄   ▒   ██▒▒▓▓▄ ▄██▒░██▄▄▄▄██ ▒██▄█▓▒ ▒▒▓█  ▄ ",
+spaces .. "▒██░   ▓██░░ ████▓▒░   ░▒████▒▒██████▒▒▒ ▓███▀ ░ ▓█   ▓██▒▒██▒ ░  ░░▒████▒",
+spaces .. "░ ▒░   ▒ ▒ ░ ▒░▒░▒░    ░░ ▒░ ░▒ ▒▓▒ ▒ ░░ ░▒ ▒  ░ ▒▒   ▓▒█░▒▓▒░ ░  ░░░ ▒░ ░",
+spaces .. "░ ░░   ░ ▒░  ░ ▒ ▒░     ░ ░  ░░ ░▒  ░ ░  ░  ▒     ▒   ▒▒ ░░▒ ░      ░ ░  ░",
+spaces .. "   ░   ░ ░ ░ ░ ░ ▒        ░   ░  ░  ░  ░          ░   ▒   ░░          ░   ",
+spaces .. "         ░     ░ ░        ░  ░      ░  ░ ░            ░  ░            ░  ░",
+spaces .. "                                       ░                                  "
+    }
+
+    local padding_top = math.floor(height / 4)
+    for i = 1, padding_top do
+        table.insert(lines, 1, " ")
+    end
+
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+
+    local win = vim.api.nvim_open_win(buf, false, {
+      relative = "editor",
+      width = width - 4,
+      height = height,
+      row = 0,
+      col = math.floor((width - 50) / 2),
+      style = "minimal",
+      border = "double",
+    })
+
+    vim.defer_fn(function()
+      vim.api.nvim_win_close(win, true)
+    end, 2000)
+  end)
+end
+
+
 vim.keymap.set("n", "<Esc>", function()
-  local msg = "Escape in normal mode!"
-  vim.notify(msg, vim.log.levels.WARN, {
-    title = "Escape Abuse",
-    timeout = 3000,
-  })
+  local msg = "Escape in normal mooooode!"
+--  vim.notify(msg, vim.log.levels.WARN, {
+--    title = "Escape Abuse",
+--    timeout = 3000,
+--  })
+  loud_notify(msg)
   return "<Esc>"
 end, { expr = true, noremap = true })
 EOF
