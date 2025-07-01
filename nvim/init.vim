@@ -91,6 +91,14 @@ spaces .. "                                       ░                           
       border = "double",
     })
 
+  -- Define a custom highlight group with red foreground
+  vim.api.nvim_set_hl(0, 'RedAsciiArt', { fg = '#FF0000'})
+
+  -- Apply the highlight to each line
+  for i = 0, #lines - 1 do
+    vim.api.nvim_buf_add_highlight(buf, -1, 'RedAsciiArt', i, 0, -1)
+  end
+
     vim.defer_fn(function()
       vim.api.nvim_win_close(win, true)
     end, 2000)
