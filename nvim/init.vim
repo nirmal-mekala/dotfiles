@@ -40,8 +40,6 @@ nnoremap <M-a> :tabn 1<CR>
 nnoremap <M-s> :tabn 2<CR>
 nnoremap <M-d> :tabn 3<CR>
 nnoremap <M-f> :tabn 4<CR>
-nnoremap <C-n> :tabn<CR>
-nnoremap <C-p> :tabp<CR>
 
 command! SV source $MYVIMRC | echo  "init.vim reloaded!"
 
