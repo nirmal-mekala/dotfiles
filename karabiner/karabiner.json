@@ -22,26 +22,6 @@
                         ]
                     },
                     {
-                        "description": "[ --> escape when caps lock pressed",
-                        "manipulators": [
-                            {
-                                "conditions": [
-                                    {
-                                        "name": "caps_lock pressed",
-                                        "type": "variable_if",
-                                        "value": 1
-                                    }
-                                ],
-                                "from": {
-                                    "key_code": "open_bracket",
-                                    "modifiers": { "optional": ["any"] }
-                                },
-                                "to": [{ "key_code": "escape" }],
-                                "type": "basic"
-                            }
-                        ]
-                    },
-                    {
                         "description": "Caps Lock sets caps_lock pressed",
                         "manipulators": [
                             {
@@ -65,6 +45,136 @@
                                         }
                                     }
                                 ],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
+                        "description": "[ --> escape when caps lock pressed",
+                        "manipulators": [
+                            {
+                                "conditions": [
+                                    {
+                                        "name": "caps_lock pressed",
+                                        "type": "variable_if",
+                                        "value": 1
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "open_bracket",
+                                    "modifiers": { "optional": ["any"] }
+                                },
+                                "to": [{ "key_code": "escape" }],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
+                        "description": "caps_lock pressed app open shortcuts",
+                        "manipulators": [
+                            {
+                                "conditions": [
+                                    {
+                                        "name": "caps_lock pressed",
+                                        "type": "variable_if",
+                                        "value": 1
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "z",
+                                    "modifiers": { "optional": ["any"] }
+                                },
+                                "to": [{ "software_function": { "open_application": { "file_path": "/Applications/zoom.us.app" } } }],
+                                "type": "basic"
+                            },
+                            {
+                                "conditions": [
+                                    {
+                                        "name": "caps_lock pressed",
+                                        "type": "variable_if",
+                                        "value": 1
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "m",
+                                    "modifiers": { "optional": ["any"] }
+                                },
+                                "to": [{ "software_function": { "open_application": { "file_path": "/Applications/Messages.app" } } }],
+                                "type": "basic"
+                            },
+                            {
+                                "conditions": [
+                                    {
+                                        "name": "caps_lock pressed",
+                                        "type": "variable_if",
+                                        "value": 1
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "w",
+                                    "modifiers": { "optional": ["any"] }
+                                },
+                                "to": [{ "software_function": { "open_application": { "file_path": "/Applications/Windows App.app" } } }],
+                                "type": "basic"
+                            },
+                            {
+                                "conditions": [
+                                    {
+                                        "name": "caps_lock pressed",
+                                        "type": "variable_if",
+                                        "value": 1
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "i",
+                                    "modifiers": { "optional": ["any"] }
+                                },
+                                "to": [{ "software_function": { "open_application": { "file_path": "/Applications/iTerm.app" } } }],
+                                "type": "basic"
+                            },
+                            {
+                                "conditions": [
+                                    {
+                                        "name": "caps_lock pressed",
+                                        "type": "variable_if",
+                                        "value": 1
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "f",
+                                    "modifiers": { "optional": ["any"] }
+                                },
+                                "to": [{ "software_function": { "open_application": { "file_path": "/Applications/Firefox Developer Edition.app" } } }],
+                                "type": "basic"
+                            },
+                            {
+                                "conditions": [
+                                    {
+                                        "name": "caps_lock pressed",
+                                        "type": "variable_if",
+                                        "value": 1
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "b",
+                                    "modifiers": { "optional": ["any"] }
+                                },
+                                "to": [{ "software_function": { "open_application": { "file_path": "/Applications/Brave Browser.app" } } }],
+                                "type": "basic"
+                            },
+                            {
+                                "conditions": [
+                                    {
+                                        "name": "caps_lock pressed",
+                                        "type": "variable_if",
+                                        "value": 1
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "o",
+                                    "modifiers": { "optional": ["any"] }
+                                },
+                                "to": [{ "software_function": { "open_application": { "file_path": "/Applications/1Password.app" } } }],
                                 "type": "basic"
                             }
                         ]
@@ -130,21 +240,6 @@
                                     "modifiers": { "optional": ["any"] }
                                 },
                                 "to": [{ "key_code": "right_arrow" }],
-                                "type": "basic"
-                            }
-                        ]
-                    },
-                    {
-                        "description": "Right Shift → Hyper Key (⌃⌥⇧⌘)",
-                        "manipulators": [
-                            {
-                                "from": { "key_code": "right_shift" },
-                                "to": [
-                                    {
-                                        "key_code": "left_shift",
-                                        "modifiers": ["left_command", "left_control", "left_option"]
-                                    }
-                                ],
                                 "type": "basic"
                             }
                         ]
