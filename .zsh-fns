@@ -7,6 +7,7 @@ auto_add_commit_push () {
   else
     echo "What’s the matter with you?!"
   fi }
+
 # Check if command is installed
 check_command() {
   local command_to_check="$1"
@@ -37,20 +38,6 @@ gr () {
   else
     echo "Not inside a Git repository."
   fi
-}
-
-# create a new note in the orgnizer directory
-function n() {
-    local note_dir="$ORG_DIRECTORY" # assumes ORG_DIRECTORY is set
-    local timestamp=$(date +'%y%m%d')
-    local note_number=1
-    # Find the highest existing note number
-    while [[ -e "$note_dir/${timestamp}-$(printf '%03d' $note_number)-note.md" ]]; do
-        ((note_number++))
-    done
-    local note_file="${note_dir}/${timestamp}-$(printf '%03d' $note_number)-note.md"
-    nvim "$note_file"
-    echo "Note saved as $note_file"
 }
 
 # Exa Functions
@@ -131,15 +118,6 @@ ghqShellVersion() {
   fi
 }
 
-# qlmanage
-grab () {
-  check_command pbcopy || return 1
-  pwd | pbcopy
-}
-drop () {
-  check_command pbpaste || return 1
-  cd $(pbpaste)
-}
 
 # BW password
 bwutil () {
@@ -173,16 +151,6 @@ function play() {
   ffplay -nodisp -autoexit -af "volume=0.7" $1 > /dev/null 2>&1
 }
 
-# function parse_time_input() {
-#   if [ -z "$1" ]; then
-#     echo -n "Enter time expression (e.g. 1.5 * 30): "
-#     read input
-#     echo "$input" | bc
-#   else
-#     echo "$1"
-#   fi
-# }
-
 parse_time_input() {
   local _target_var="$1"
   local _arg="$2"
@@ -205,13 +173,6 @@ function ts() {
   check_command ffplay || return 1
   [ -e "$HOME/.timer/start.m4a" ] || { echo "Error: ~/.timer/start.m4a does not exist!" >&2; return 1; }
   [ -e "$HOME/.timer/end.m4a" ] || { echo "Error: ~/.timer/end.m4a does not exist!" >&2; return 1; }
-
-
-#  if [ -z "$1" ]; then
-#    time_input=$(parse_time_input)
-#  else
-#    time_input=$(parse_time_input "$1")
-#  fi
 
   parse_time_input time_input "$1" || return 1
 
@@ -270,3 +231,4 @@ fh() {
   eval "$(fc -ln 1 | tac | sed -E 's/\\/\\\\/g' | fzf)"
 }
 
+mkncd() { mkdir -p "$1" && cd "$1"; }
