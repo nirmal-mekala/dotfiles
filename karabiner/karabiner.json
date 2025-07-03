@@ -4,19 +4,16 @@
             "complex_modifications": {
                 "rules": [
                     {
-                        "description": "Ctrl + [ --> escape",
+                        "description": "Right command to left ctrl",
                         "manipulators": [
                             {
                                 "from": {
-                                    "key_code": "open_bracket",
-                                    "modifiers": {
-                                        "mandatory": ["left_control"],
-                                        "optional": ["any"]
-                                    }
+                                    "key_code": "right_command",
+                                    "modifiers": { "optional": ["any"] }
                                 },
                                 "to": [
                                     {
-                                        "key_code": "escape",
+                                        "key_code": "left_control",
                                         "modifiers": []
                                     }
                                 ],
@@ -25,61 +22,112 @@
                         ]
                     },
                     {
-                        "description": "Caps Lock to Left Ctrl",
+                        "description": "[ --> escape when caps lock pressed",
+                        "manipulators": [
+                            {
+                                "conditions": [
+                                    {
+                                        "name": "caps_lock pressed",
+                                        "type": "variable_if",
+                                        "value": 1
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "open_bracket",
+                                    "modifiers": { "optional": ["any"] }
+                                },
+                                "to": [{ "key_code": "escape" }],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
+                        "description": "Caps Lock sets caps_lock pressed",
                         "manipulators": [
                             {
                                 "from": {
                                     "key_code": "caps_lock",
                                     "modifiers": { "optional": ["any"] }
                                 },
-                                "to": [{ "key_code": "left_control" }],
+                                "to": [
+                                    {
+                                        "set_variable": {
+                                            "name": "caps_lock pressed",
+                                            "value": 1
+                                        }
+                                    }
+                                ],
+                                "to_after_key_up": [
+                                    {
+                                        "set_variable": {
+                                            "name": "caps_lock pressed",
+                                            "value": 0
+                                        }
+                                    }
+                                ],
                                 "type": "basic"
                             }
                         ]
                     },
                     {
-                        "description": "Left Ctrl + hjkl to Arrow keys",
+                        "description": "hjkl to Arrow keys when caps lock pressed",
                         "manipulators": [
                             {
+                                "conditions": [
+                                    {
+                                        "name": "caps_lock pressed",
+                                        "type": "variable_if",
+                                        "value": 1
+                                    }
+                                ],
                                 "from": {
                                     "key_code": "h",
-                                    "modifiers": {
-                                        "mandatory": ["left_control"],
-                                        "optional": ["any"]
-                                    }
+                                    "modifiers": { "optional": ["any"] }
                                 },
                                 "to": [{ "key_code": "left_arrow" }],
                                 "type": "basic"
                             },
                             {
+                                "conditions": [
+                                    {
+                                        "name": "caps_lock pressed",
+                                        "type": "variable_if",
+                                        "value": 1
+                                    }
+                                ],
                                 "from": {
                                     "key_code": "j",
-                                    "modifiers": {
-                                        "mandatory": ["left_control"],
-                                        "optional": ["any"]
-                                    }
+                                    "modifiers": { "optional": ["any"] }
                                 },
                                 "to": [{ "key_code": "down_arrow" }],
                                 "type": "basic"
                             },
                             {
+                                "conditions": [
+                                    {
+                                        "name": "caps_lock pressed",
+                                        "type": "variable_if",
+                                        "value": 1
+                                    }
+                                ],
                                 "from": {
                                     "key_code": "k",
-                                    "modifiers": {
-                                        "mandatory": ["left_control"],
-                                        "optional": ["any"]
-                                    }
+                                    "modifiers": { "optional": ["any"] }
                                 },
                                 "to": [{ "key_code": "up_arrow" }],
                                 "type": "basic"
                             },
                             {
+                                "conditions": [
+                                    {
+                                        "name": "caps_lock pressed",
+                                        "type": "variable_if",
+                                        "value": 1
+                                    }
+                                ],
                                 "from": {
                                     "key_code": "l",
-                                    "modifiers": {
-                                        "mandatory": ["left_control"],
-                                        "optional": ["any"]
-                                    }
+                                    "modifiers": { "optional": ["any"] }
                                 },
                                 "to": [{ "key_code": "right_arrow" }],
                                 "type": "basic"
@@ -87,13 +135,10 @@
                         ]
                     },
                     {
-                        "description": "Right Command → Hyper Key (⌃⌥⇧⌘)",
+                        "description": "Right Shift → Hyper Key (⌃⌥⇧⌘)",
                         "manipulators": [
                             {
-                                "from": {
-                                    "key_code": "right_command",
-                                    "modifiers": { "optional": ["caps_lock"] }
-                                },
+                                "from": { "key_code": "right_shift" },
                                 "to": [
                                     {
                                         "key_code": "left_shift",

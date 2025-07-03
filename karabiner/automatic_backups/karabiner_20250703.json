@@ -1,0 +1,117 @@
+{
+    "profiles": [
+        {
+            "complex_modifications": {
+                "rules": [
+                    {
+                        "description": "Ctrl + [ --> escape",
+                        "manipulators": [
+                            {
+                                "from": {
+                                    "key_code": "open_bracket",
+                                    "modifiers": {
+                                        "mandatory": ["left_control"],
+                                        "optional": ["any"]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "key_code": "escape",
+                                        "modifiers": []
+                                    }
+                                ],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
+                        "description": "Caps Lock to Left Ctrl",
+                        "manipulators": [
+                            {
+                                "from": {
+                                    "key_code": "caps_lock",
+                                    "modifiers": { "optional": ["any"] }
+                                },
+                                "to": [{ "key_code": "left_control" }],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
+                        "description": "Left Ctrl + hjkl to Arrow keys",
+                        "manipulators": [
+                            {
+                                "from": {
+                                    "key_code": "h",
+                                    "modifiers": {
+                                        "mandatory": ["left_control"],
+                                        "optional": ["any"]
+                                    }
+                                },
+                                "to": [{ "key_code": "left_arrow" }],
+                                "type": "basic"
+                            },
+                            {
+                                "from": {
+                                    "key_code": "j",
+                                    "modifiers": {
+                                        "mandatory": ["left_control"],
+                                        "optional": ["any"]
+                                    }
+                                },
+                                "to": [{ "key_code": "down_arrow" }],
+                                "type": "basic"
+                            },
+                            {
+                                "from": {
+                                    "key_code": "k",
+                                    "modifiers": {
+                                        "mandatory": ["left_control"],
+                                        "optional": ["any"]
+                                    }
+                                },
+                                "to": [{ "key_code": "up_arrow" }],
+                                "type": "basic"
+                            },
+                            {
+                                "from": {
+                                    "key_code": "l",
+                                    "modifiers": {
+                                        "mandatory": ["left_control"],
+                                        "optional": ["any"]
+                                    }
+                                },
+                                "to": [{ "key_code": "right_arrow" }],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
+                        "description": "Right Command → Hyper Key (⌃⌥⇧⌘)",
+                        "manipulators": [
+                            {
+                                "from": {
+                                    "key_code": "right_command",
+                                    "modifiers": { "optional": ["caps_lock"] }
+                                },
+                                "to": [
+                                    {
+                                        "key_code": "left_shift",
+                                        "modifiers": ["left_command", "left_control", "left_option"]
+                                    }
+                                ],
+                                "type": "basic"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "name": "Default profile",
+            "selected": true,
+            "virtual_hid_keyboard": {
+                "country_code": 0,
+                "keyboard_type_v2": "ansi"
+            }
+        }
+    ]
+}
