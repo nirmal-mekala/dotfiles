@@ -1,0 +1,33 @@
+# partial modifier_keys
+# xkb_symbols "caps_mod3" {
+#   replace key <CAPS> {
+#     [ VoidSymbol, VoidSymbol ]
+#   };
+#   modifier_map Mod3 { <CAPS> };
+# };
+
+partial alphanumeric_keys
+xkb_symbols "hjkl_arrows" {
+
+    key <AC06>  { symbols[Group2]=[ Left,      Left,      Left,      Left      ] };
+    key <AC07>  { symbols[Group2]=[ Down,      Down,      Down,      Down      ] };
+    key <AC08>  { symbols[Group2]=[ Up,        Up,        Up,        Up        ] };
+    key <AC09>  { symbols[Group2]=[ Right,     Right,     Right,     Right     ] };
+
+};
+
+partial alphanumeric_keys
+xkb_symbols "bracket_escape" {
+    key <AD11> { symbols[Group2]= [ Escape, Escape ] };
+};
+
+default partial alphanumeric_keys modifier_keys
+xkb_symbols "swap_r_command" {
+
+    key <RWIN> {
+        type= "ONE_LEVEL",
+        symbols[Group1]= [ Control_R ]
+    };
+
+    modifier_map Control { <RWIN> };
+};
