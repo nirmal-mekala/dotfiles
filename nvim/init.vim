@@ -36,10 +36,8 @@ set foldmethod=indent
 set foldlevel=99
 filetype plugin on
 syntax on
-nnoremap <M-a> :tabn 1<CR>
-nnoremap <M-s> :tabn 2<CR>
-nnoremap <M-d> :tabn 3<CR>
-nnoremap <M-f> :tabn 4<CR>
+nnoremap <C-q> :tabn<CR>
+nnoremap <C-e> :tabp<CR>
 
 command! SV source $MYVIMRC | echo  "init.vim reloaded!"
 
@@ -104,10 +102,6 @@ end
 
 vim.keymap.set("n", "<Esc>", function()
   local msg = "Escape in normal mooooode!"
---  vim.notify(msg, vim.log.levels.WARN, {
---    title = "Escape Abuse",
---    timeout = 3000,
---  })
   loud_notify(msg)
   return "<Esc>"
 end, { expr = true, noremap = true })
