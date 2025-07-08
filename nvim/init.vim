@@ -37,7 +37,6 @@ set foldlevel=99
 filetype plugin on
 syntax on
 nnoremap <C-q> :tabn<CR>
-nnoremap <C-e> :tabp<CR>
 
 command! SV source $MYVIMRC | echo  "init.vim reloaded!"
 
