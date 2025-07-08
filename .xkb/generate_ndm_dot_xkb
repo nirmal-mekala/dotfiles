@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 EXTRA_NDM="+ndm_custom(hjkl_arrows)+ndm_custom(bracket_escape)+ndm_custom(swap_r_command)"
 CAPSLOCK="+capslock(groupshift)"
