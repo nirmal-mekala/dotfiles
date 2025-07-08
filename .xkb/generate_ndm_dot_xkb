@@ -1,10 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 EXTRA_NDM="+ndm_custom(hjkl_arrows)+ndm_custom(bracket_escape)+ndm_custom(swap_r_command)"
 CAPSLOCK="+capslock(groupshift)"
 OUTPUT_FILE="ndm.xkb"
 
-# Handle file or stdin
 if [ -t 0 ] && [ -n "$1" ]; then
     INPUT="$1"
     exec < "$INPUT"
@@ -14,26 +13,18 @@ elif [ -t 0 ]; then
 fi
 
 awk -v ndm="$EXTRA_NDM" -v cap="$CAPSLOCK" '
-{
-    if ($1 == "xkb_symbols") {
-        # Remove all ndm_custom(...) and capslock(groupshift)
-        gsub(/\+ndm_custom\([^)]+\)/, "")
-        gsub(/\+capslock\(groupshift\)/, "")
-
-        # Ensure +capslock(groupshift) is included right after base layout
-        match($0, /xkb_symbols[ \t]*\{[ \t]*include[ \t]*"/)
-        prefix = substr($0, 1, RLENGTH)
-        remainder = substr($0, RLENGTH + 1)
-
-        # Insert capslock and ndm options before inet(evdev)
-        gsub(/\+inet\(evdev\)/, cap ndm "+inet(evdev)", remainder)
-
-        # Reconstruct line
-        print prefix remainder
-    } else {
-        print
+function clean_symbols(sym_line) {
+    match(sym_line, /include[ \t]*"([^"]+)"/, m)
+    if (!m[1]) {
+        print sym_line
+        return
     }
-}
-' > "$OUTPUT_FILE"
 
-echo "Updated keymap written to $OUTPUT_FILE"
+    symbols = m[1]
+
+    # Remove existing capslock(groupshift) and all ndm_custom(...)
+    gsub(/\+capslock\(groupshift\)/, "", symbols)
+    gsub(/\+ndm_custom\([^)]+\)/, "", symbols)
+
+    # Insert before first +inet(...) if found
+    if (symbols ~ /\
