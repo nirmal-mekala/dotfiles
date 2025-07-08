@@ -4,6 +4,7 @@ EXTRA_NDM="+ndm_custom(hjkl_arrows)+ndm_custom(bracket_escape)+ndm_custom(swap_r
 CAPSLOCK="+capslock(groupshift)"
 OUTPUT_FILE="ndm.xkb"
 
+# Handle file or stdin
 if [ -t 0 ] && [ -n "$1" ]; then
     INPUT="$1"
     exec < "$INPUT"
@@ -13,18 +14,34 @@ elif [ -t 0 ]; then
 fi
 
 awk -v ndm="$EXTRA_NDM" -v cap="$CAPSLOCK" '
-function clean_symbols(sym_line) {
-    match(sym_line, /include[ \t]*"([^"]+)"/, m)
-    if (!m[1]) {
-        print sym_line
-        return
+{
+    if ($1 == "xkb_symbols") {
+        line = $0
+
+        # Extract the include string
+        start = index(line, "include")
+        quote1 = index(line, "\"")
+        quote2 = match(substr(line, quote1 + 1), "\"")
+        quote2 = quote2 ? quote1 + quote2 : length(line)
+        inc = substr(line, quote1 + 1, quote2 - quote1 - 1)
+
+        # Remove ndm_custom(...) and capslock(groupshift)
+        gsub(/\+ndm_custom\([^)]+\)/, "", inc)
+        gsub(/\+capslock\(groupshift\)/, "", inc)
+
+        # Inject before inet(...)
+        if (inc ~ /\+inet\([^)]*\)/) {
+            sub(/\+inet\([^)]*\)/, cap ndm "&", inc)
+        } else {
+            inc = inc cap ndm
+        }
+
+        # Rebuild and print
+        print substr(line, 1, quote1) "\"" inc "\" };"
+    } else {
+        print
     }
+}
+' > "$OUTPUT_FILE"
 
-    symbols = m[1]
-
-    # Remove existing capslock(groupshift) and all ndm_custom(...)
-    gsub(/\+capslock\(groupshift\)/, "", symbols)
-    gsub(/\+ndm_custom\([^)]+\)/, "", symbols)
-
-    # Insert before first +inet(...) if found
-    if (symbols ~ /\
+echo "Written updated keymap to $OUTPUT_FILE"
