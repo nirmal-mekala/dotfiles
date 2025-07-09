@@ -4,7 +4,7 @@
       "complex_modifications": {
         "rules": [
           {
-            "description": "Right command to left ctrl",
+            "description": "Right command to right ctrl",
             "manipulators": [
               {
                 "from": {
@@ -13,7 +13,7 @@
                 },
                 "to": [
                   {
-                    "key_code": "left_control",
+                    "key_code": "right_control",
                     "modifiers": []
                   }
                 ],
@@ -22,7 +22,7 @@
             ]
           },
           {
-            "description": "Caps Lock sets caps_lock pressed",
+            "description": "Caps Lock sets kb_layer_active",
             "manipulators": [
               {
                 "from": {
@@ -32,7 +32,7 @@
                 "to": [
                   {
                     "set_variable": {
-                      "name": "caps_lock pressed",
+                      "name": "kb_layer_active",
                       "value": 1
                     }
                   }
@@ -40,7 +40,35 @@
                 "to_after_key_up": [
                   {
                     "set_variable": {
-                      "name": "caps_lock pressed",
+                      "name": "kb_layer_active",
+                      "value": 0
+                    }
+                  }
+                ],
+                "type": "basic"
+              }
+            ]
+          },
+          {
+            "description": "Left control sets kb_layer_active",
+            "manipulators": [
+              {
+                "from": {
+                  "key_code": "left_control",
+                  "modifiers": { "optional": ["any"] }
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "kb_layer_active",
+                      "value": 1
+                    }
+                  }
+                ],
+                "to_after_key_up": [
+                  {
+                    "set_variable": {
+                      "name": "kb_layer_active",
                       "value": 0
                     }
                   }
@@ -55,7 +83,7 @@
               {
                 "conditions": [
                   {
-                    "name": "caps_lock pressed",
+                    "name": "kb_layer_active",
                     "type": "variable_if",
                     "value": 1
                   }
@@ -70,12 +98,12 @@
             ]
           },
           {
-            "description": "caps_lock pressed app open shortcuts",
+            "description": "kb_layer_active app open shortcuts",
             "manipulators": [
               {
                 "conditions": [
                   {
-                    "name": "caps_lock pressed",
+                    "name": "kb_layer_active",
                     "type": "variable_if",
                     "value": 1
                   }
@@ -98,7 +126,7 @@
               {
                 "conditions": [
                   {
-                    "name": "caps_lock pressed",
+                    "name": "kb_layer_active",
                     "type": "variable_if",
                     "value": 1
                   }
@@ -121,7 +149,7 @@
               {
                 "conditions": [
                   {
-                    "name": "caps_lock pressed",
+                    "name": "kb_layer_active",
                     "type": "variable_if",
                     "value": 1
                   }
@@ -144,7 +172,7 @@
               {
                 "conditions": [
                   {
-                    "name": "caps_lock pressed",
+                    "name": "kb_layer_active",
                     "type": "variable_if",
                     "value": 1
                   }
@@ -167,7 +195,7 @@
               {
                 "conditions": [
                   {
-                    "name": "caps_lock pressed",
+                    "name": "kb_layer_active",
                     "type": "variable_if",
                     "value": 1
                   }
@@ -190,7 +218,7 @@
               {
                 "conditions": [
                   {
-                    "name": "caps_lock pressed",
+                    "name": "kb_layer_active",
                     "type": "variable_if",
                     "value": 1
                   }
@@ -213,7 +241,7 @@
               {
                 "conditions": [
                   {
-                    "name": "caps_lock pressed",
+                    "name": "kb_layer_active",
                     "type": "variable_if",
                     "value": 1
                   }
@@ -236,7 +264,7 @@
               {
                 "conditions": [
                   {
-                    "name": "caps_lock pressed",
+                    "name": "kb_layer_active",
                     "type": "variable_if",
                     "value": 1
                   }
@@ -264,7 +292,7 @@
               {
                 "conditions": [
                   {
-                    "name": "caps_lock pressed",
+                    "name": "kb_layer_active",
                     "type": "variable_if",
                     "value": 1
                   }
@@ -279,7 +307,7 @@
               {
                 "conditions": [
                   {
-                    "name": "caps_lock pressed",
+                    "name": "kb_layer_active",
                     "type": "variable_if",
                     "value": 1
                   }
@@ -294,7 +322,7 @@
               {
                 "conditions": [
                   {
-                    "name": "caps_lock pressed",
+                    "name": "kb_layer_active",
                     "type": "variable_if",
                     "value": 1
                   }
@@ -309,7 +337,7 @@
               {
                 "conditions": [
                   {
-                    "name": "caps_lock pressed",
+                    "name": "kb_layer_active",
                     "type": "variable_if",
                     "value": 1
                   }
