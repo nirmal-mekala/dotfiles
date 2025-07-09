@@ -25,9 +25,9 @@ call plug#end()
 
 " VIM CONFIG
 " ==========
-let mapleader = " "
+let mapleader = ','
 nnoremap <SPACE> <Nop>
-let maplocalleader = '\'
+" let maplocalleader = '\'
 set relativenumber
 scriptencoding utf-8
 set nobackup
