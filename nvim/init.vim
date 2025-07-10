@@ -36,7 +36,6 @@ set foldmethod=indent
 set foldlevel=99
 filetype plugin on
 syntax on
-nnoremap <C-q> :tabn<CR>
 
 command! SV source $MYVIMRC | echo  "init.vim reloaded!"
 
