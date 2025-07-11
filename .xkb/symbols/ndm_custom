@@ -32,11 +32,11 @@ xkb_symbols "swap_r_command" {
     modifier_map Control { <RWIN> };
 };
 
-partial modifier_keys
-xkb_symbols "lctl_mode_switch" {
-
-    key <LCTL> {
-        type= "ONE_LEVEL",
-        symbols[Group1]= [ Mode_switch ]
-    };
-};
+# partial modifier_keys
+# xkb_symbols "lctl_mode_switch" {
+# 
+#     key <LCTL> {
+#         type= "ONE_LEVEL",
+#         symbols[Group1]= [ Mode_switch ]
+#     };
+# };

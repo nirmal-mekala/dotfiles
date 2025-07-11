@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-EXTRA_NDM="+ndm_custom(hjkl_arrows)+ndm_custom(bracket_escape)+ndm_custom(swap_r_command)+ndm_custom(lctl_mode_switch)"
+EXTRA_NDM="+ndm_custom(hjkl_arrows)+ndm_custom(bracket_escape)+ndm_custom(swap_r_command)"
 CAPSLOCK="+capslock(groupshift)"
 OUTPUT_FILE="ndm.xkb"
 
