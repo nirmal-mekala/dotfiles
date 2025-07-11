@@ -27,7 +27,7 @@ call plug#end()
 " ==========
 let mapleader = ','
 nnoremap <SPACE> <Nop>
-" let maplocalleader = '\'
+let maplocalleader = '\'
 set relativenumber
 scriptencoding utf-8
 set nobackup
