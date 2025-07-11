@@ -50,34 +50,6 @@
             ]
           },
           {
-            "description": "Left control sets kb_layer_active",
-            "manipulators": [
-              {
-                "from": {
-                  "key_code": "left_control",
-                  "modifiers": { "optional": ["any"] }
-                },
-                "to": [
-                  {
-                    "set_variable": {
-                      "name": "kb_layer_active",
-                      "value": 1
-                    }
-                  }
-                ],
-                "to_after_key_up": [
-                  {
-                    "set_variable": {
-                      "name": "kb_layer_active",
-                      "value": 0
-                    }
-                  }
-                ],
-                "type": "basic"
-              }
-            ]
-          },
-          {
             "description": "[ --> escape when caps lock pressed",
             "manipulators": [
               {
