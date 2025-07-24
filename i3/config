@@ -15,10 +15,6 @@ set $mod Mod4
 # is used in the bar {} block below.
 font pango:FiraCode Nerd Font Mono 10
 
-# This font is widely installed, provides lots of unicode glyphs, right-to-left
-# text rendering and scalability on retina/hidpi displays (thanks to pango).
-#font pango:DejaVu Sans Mono 8
-
 # Start XDG autostart .desktop files using dex. See also
 # https://wiki.archlinux.org/index.php/XDG_Autostart
 exec --no-startup-id dex --autostart --environment i3
@@ -113,6 +109,10 @@ set $ws8 "8"
 set $ws9 "9"
 set $ws10 "10"
 
+# Set apps to specific workspaces
+assign [class="XTerm"] $ws1
+assign [class="Brave-browser"] $ws2
+
 # switch to workspace
 bindsym $mod+1 workspace number $ws1
 bindsym $mod+2 workspace number $ws2
@@ -124,6 +124,11 @@ bindsym $mod+7 workspace number $ws7
 bindsym $mod+8 workspace number $ws8
 bindsym $mod+9 workspace number $ws9
 bindsym $mod+0 workspace number $ws10
+
+# app shortcuts via workspace
+# goal is xkbmap caps + e.g. B to workspace where Brave will be via Fkey
+bindsym F12 workspace number $ws2
+bindsym F11 workspace number $ws1
 
 # move focused container to workspace
 bindsym $mod+Shift+1 move container to workspace number $ws1
