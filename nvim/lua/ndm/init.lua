@@ -1,2 +1,2 @@
+require("ndm.editor")
 require("ndm.remaps")
-print("hello from ndm")
