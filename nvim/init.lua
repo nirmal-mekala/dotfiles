@@ -1,1 +1,2 @@
+require("ndm")
 print("hello")
