@@ -24,6 +24,7 @@ vim.cmd([[
   if has('termguicolors')
     set termguicolors
   endif 
+  set scrolloff=8
 
   " keymap: vanilla vim autobrackets
   inoremap " ""<left>
@@ -31,6 +32,21 @@ vim.cmd([[
   inoremap ( ()<left>
   inoremap [ []<left>
   inoremap { {}<left>
+
+  " keymap: visual mode move block
+  vnoremap J :m '>+1<CR>gv=gv
+  vnoremap K :m '<-2<CR>gv=gv
+
+  " keymap: cursor in middle with C-D/U
+  nnoremap <C-D> <C-D>zz
+  nnoremap <C-U> <C-U>zz
+
+  " keymap: keep paste buffer when pasting in visual mode
+  xnoremap <leader>p "_dP
+
+  " keymap: delete to void register
+  nnoremap <leader>d "_d
+  vnoremap <leader>d "_d
 
   " keymap: typography
   inoremap <C-\> “”<left>
