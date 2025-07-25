@@ -28,6 +28,10 @@ return {
 			javascriptreact = { "prettierd", "prettier", stop_after_first = true },
 			typescript = { "prettierd", "prettier", stop_after_first = true },
 			typescriptreact = { "prettierd", "prettier", stop_after_first = true },
+			css = { "prettierd", "prettier", stop_after_first = true },
+			scss = { "prettierd", "prettier", stop_after_first = true },
+			sass = { "prettierd", "prettier", stop_after_first = true },
+			less = { "prettierd", "prettier", stop_after_first = true },
 		},
 		-- Set default options
 		default_format_opts = {
