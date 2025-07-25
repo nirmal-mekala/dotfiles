@@ -2,17 +2,20 @@ return {
   "stevearc/conform.nvim",
   event = { "BufWritePre" },
   cmd = { "ConformInfo" },
---  keys = {
---    {
---      -- Customize or remove this keymap to your liking
---      "<leader>f",
---      function()
---        require("conform").format({ async = true })
---      end,
---      mode = "",
---      desc = "Format buffer",
---    },
---  },
+  keys = {
+    {
+      "<leader>fd",
+      "<cmd>FormatDisable<cr>",
+      mode = "",
+      desc = "Disable Formatting",
+    },
+    {
+      "<leader>fe",
+      "<cmd>FormatEnable<cr>",
+      mode = "",
+      desc = "Enable Formatting",
+    }
+  },
   -- This will provide type hinting with LuaLS
   ---@module "conform"
   ---@type conform.setupOpts
@@ -28,7 +31,13 @@ return {
       lsp_format = "fallback",
     },
     -- Set up format-on-save
-    format_on_save = { timeout_ms = 500 },
+    format_on_save = function(bufnr)
+      -- Disable with a global or buffer-local variable
+      if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
+        return
+      end
+      return { timeout_ms = 500, lsp_format = "fallback" }
+    end,
     -- Customize formatters
     formatters = {
       shfmt = {
@@ -52,7 +61,8 @@ return {
       {
         desc = "Disable autoformat-on-save",
         bang = true,
-      })
+      }
+    )
     vim.api.nvim_create_user_command(
       "FormatEnable", 
       function()
