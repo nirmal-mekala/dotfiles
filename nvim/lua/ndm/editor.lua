@@ -1,5 +1,5 @@
--- TAB SETTINGS
 vim.cmd [[
+  " TAB SETTINGS
   set shiftwidth=2
   set expandtab
   set smarttab
