@@ -10,6 +10,7 @@ vim.cmd([[
   set foldmethod=indent
   set foldlevel=99
   filetype plugin on
+  set fillchars=eob:\ 
   syntax on
   if has('termguicolors')
     set termguicolors
