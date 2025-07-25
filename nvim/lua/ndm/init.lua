@@ -1,9 +1,18 @@
 vim.cmd([[
-  " leader
+  " settings: leader
   let mapleader = ','
   let maplocalleader = '\'
 
-  " misc settings
+  " settings: tab
+  set shiftwidth=2
+  set expandtab
+  set smarttab
+  set softtabstop=0
+  set tabstop=2
+  set nowrap
+  set list
+ 
+  " settings: misc
   set relativenumber
   scriptencoding utf-8
   set nobackup
@@ -14,25 +23,16 @@ vim.cmd([[
   syntax on
   if has('termguicolors')
     set termguicolors
-  endif
+  endif 
 
-  " tab settings
-  set shiftwidth=2
-  set expandtab
-  set smarttab
-  set softtabstop=0
-  set tabstop=2
-  set nowrap
-  set list
-
-  " vanilla vim autobrackets
+  " keymap: vanilla vim autobrackets
   inoremap " ""<left>
   inoremap ' ''<left>
   inoremap ( ()<left>
   inoremap [ []<left>
   inoremap { {}<left>
 
-  " typography
+  " keymap: typography
   inoremap <C-\> “”<left>
   inoremap <C-]> ’
   augroup markdown_mappings
@@ -40,7 +40,10 @@ vim.cmd([[
     autocmd FileType markdown inoremap ... …
   augroup END
 
-  " complete / cross out markdown todo
+  " keymap: toggle relative line #s
+  nnoremap <leader>1 :set nu! rnu!<CR>
+
+  " keymap: markdown todos
   nnoremap <leader>x 0f]hrxla done:<C-R>=strftime('%y%m%d')<CR><ESC>0j
   nnoremap <leader>z 0f[i~~<ESC>A~~<ESC>0j
 ]])
