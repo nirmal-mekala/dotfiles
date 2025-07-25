@@ -3,9 +3,9 @@ return {
   dependencies = { 'nvim-lua/plenary.nvim' },
   cmd = "Telescope",
   keys = {
-    { "<leader>3", "<cmd>Telescope live_grep<cr>", desc = "Live Grep" },
+    { "<leader>3", "<cmd>Telescope live_grep<cr>", mode = "n", desc = "Live Grep" },
     -- TODO identify if this shoudl be git files
-    { "<leader>4", "<cmd>Telescope find_files<cr>", desc = "Find Files" },
+    { "<leader>4", "<cmd>Telescope find_files<cr>", mode = "n", desc = "Find Files" },
   },
   config = function()
     require('telescope').setup{
