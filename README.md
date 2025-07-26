@@ -30,7 +30,6 @@ It will backup existing files and skip if a symlink already exists.
 - Neovim setup
 - powerlevel10k zsh setup
 - karabiner elements (macOS keybindings) setup
-- sample config file for `todo-txt` CLI
 - `z` for fast directory jumping
 - a minimalist `tmux` configuration
 - colorschemes for iTerm on macOS
