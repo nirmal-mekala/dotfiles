@@ -1,2 +1,2 @@
-require("ndm")
+vim.cmd("source ./vimmyvim.vim")
 require("config.lazy")
