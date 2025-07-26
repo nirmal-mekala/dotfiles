@@ -25,8 +25,6 @@ This script performs three main functions:
 
 It will backup existing files and skip if a symlink already exists.
 
-It also installs [`vim-plug` for Neovim](https://github.com/junegunn/vim-plug#neovim) on systems that do not have it.
-
 ## What’s Included
 
 - Neovim setup
