@@ -12,18 +12,22 @@ set nowrap
 set list
 
 " settings: misc
-set relativenumber
 scriptencoding utf-8
+filetype plugin on
+syntax on"
+set relativenumber
 set nobackup
 set foldmethod=indent
 set foldlevel=99
-filetype plugin on
-set fillchars=eob:\ 
-syntax on
-if has('termguicolors')
-  set termguicolors
-endif 
 set scrolloff=8
+if has('nvim')
+  set fillchars=eob:\ 
+  set termguicolors
+else
+  set listchars=
+  colorscheme evening
+endif
+
 
 " keymap: vanilla vim autobrackets
 inoremap " ""<left>
