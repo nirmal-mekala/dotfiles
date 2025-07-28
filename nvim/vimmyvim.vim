@@ -20,6 +20,7 @@ set nobackup
 set foldmethod=indent
 set foldlevel=99
 set scrolloff=8
+set signcolumn=yes
 if has('nvim')
   set fillchars=eob:\ 
   set termguicolors
