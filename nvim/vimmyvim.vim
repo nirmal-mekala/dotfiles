@@ -26,7 +26,8 @@ if has('nvim')
   set termguicolors
 else
   set listchars=
-  colorscheme evening
+  set background=dark
+  colorscheme PaperColor
 endif
 
 
