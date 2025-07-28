@@ -55,9 +55,10 @@ vnoremap <leader>d "_d
 " keymap: typography
 inoremap <C-\> “”<left>
 inoremap <C-]> ’
-augroup markdown_mappings
+augroup markdown
   autocmd!
-  autocmd FileType markdown inoremap ... …
+  autocmd FileType markdown,mkd inoremap ... …
+        \ | call pencil#init({'wrap': 'hard', 'autoformat': 1})
 augroup END
 
 " keymap: toggle relative line #s
