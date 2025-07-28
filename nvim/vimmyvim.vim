@@ -11,16 +11,7 @@ set tabstop=2
 set nowrap
 set list
 
-" settings: misc
-scriptencoding utf-8
-filetype plugin on
-syntax on"
-set relativenumber
-set nobackup
-set foldmethod=indent
-set foldlevel=99
-set scrolloff=8
-set signcolumn=yes
+" settings: neovim vs vim colors + listchars
 if has('nvim')
   set fillchars=eob:\ 
   set termguicolors
@@ -30,6 +21,18 @@ else
   colorscheme PaperColor
 endif
 
+" settings: misc
+scriptencoding utf-8
+filetype plugin on
+syntax on
+set relativenumber
+set nobackup
+set foldmethod=indent
+set foldlevel=99
+set scrolloff=8
+set signcolumn=yes
+set smartindent
+set autoindent
 
 " keymap: vanilla vim autobrackets
 inoremap " ""<left>
