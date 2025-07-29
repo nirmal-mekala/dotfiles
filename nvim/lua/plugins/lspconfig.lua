@@ -5,10 +5,11 @@ return {
 
 		local on_attach = function(client, bufnr)
 			vim.keymap.set("n", "gd", function()
+				vim.cmd("tab split")
 				vim.lsp.buf.definition()
 			end, { buffer = bufnr, desc = "Goto Definition" })
 
-			vim.keymap.set("n", "K", function()
+			vim.keymap.set("n", "H", function()
 				vim.lsp.buf.hover()
 			end, { buffer = bufnr, desc = "Hover" })
 
