@@ -3,7 +3,7 @@ return {
 	version = "*",
 	keys = {
 		{ "<leader>2", "<cmd>ToggleTerm <cr>", mode = "n", desc = "Toggle Terminal" },
-		{ "<C-q>", "<C-\\><C-n>", mode = "t", desc = "Exit terminal mode" },
+		{ "<ESC>", "<C-\\><C-n>", mode = "t", desc = "Exit terminal mode" },
 	},
 
 	config = function()
