@@ -2,8 +2,13 @@ return {
 	"akinsho/toggleterm.nvim",
 	version = "*",
 	keys = {
-		{ "<leader>2", "<cmd>ToggleTerm <cr>", mode = "n", desc = "Toggle Terminal" },
-		{ "<ESC>", "<C-\\><C-n>", mode = "t", desc = "Exit terminal mode" },
+		{
+			"<leader>2",
+			"<cmd>ToggleTerm<cr>",
+			mode = "n",
+			desc = "Toggle Terminal",
+		},
+		{ "<leader>2", "<C-\\><C-n><cmd>ToggleTerm<cr>", mode = "t", desc = "Exit terminal mode + toggle term" },
 	},
 
 	config = function()
