@@ -225,10 +225,27 @@ function vzf() {
 }
 
 
-fh() {
+function fh() {
   # List history without numbers, reverse so newest are first,
   # escape backslashes, then fuzzy-find and eval.
   eval "$(fc -ln 1 | tac | sed -E 's/\\/\\\\/g' | fzf)"
 }
 
-mkncd() { mkdir -p "$1" && cd "$1"; }
+function mkncd() { mkdir -p "$1" && cd "$1"; }
+
+function tms() {
+  session="$(tmux ls | grep -v "attached" | awk '{print $1}' | sed 's/://' | fzf)"
+  if [ -n "$TMUX" ]; then
+    tmux switch-client -t "$session"
+  else
+    tmux attach-session -t "$session"
+  fi
+}
+
+function tmdel() {
+  sessions="$(tmux ls | grep -v "attached" | awk '{print $1}' | sed 's/://' | fzf --multi)"
+
+  echo "$sessions" | while IFS= read -r session; do
+    tmux kill-session -t "$session"
+  done
+}
