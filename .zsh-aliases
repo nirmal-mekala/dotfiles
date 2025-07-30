@@ -18,4 +18,4 @@ alias i="$TODO_SH_LOCATION -t -a addto inbox.txt"
 # tmux
 alias tmr="tmux rename-session"
 alias tmd="tmux detach"
-alias tml="tmux choose-tree"
+alias tml="tmux choose-tree -s"
