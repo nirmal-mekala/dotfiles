@@ -248,3 +248,16 @@ function tmdel() {
     [ -n "$session" ] && tmux kill-session -t "$session"
   done
 }
+
+function tmn() {
+  if [ -z "$1" ]; then
+    echo "Usage: tmn <session_name>"
+  else
+    tmux new-session -d -s "$1"
+    if [ -n "$TMUX" ]; then
+      tmux switch-client -t "$1"
+    else
+      tmux attach-session -t "$1"
+    fi
+  fi
+}
