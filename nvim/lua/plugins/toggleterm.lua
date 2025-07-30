@@ -3,12 +3,17 @@ return {
 	version = "*",
 	keys = {
 		{
-			"<leader>2",
+			"<C-j>",
 			"<cmd>ToggleTerm<cr>",
 			mode = "n",
 			desc = "Toggle Terminal",
 		},
-		{ "<leader>2", "<C-\\><C-n><cmd>ToggleTerm<cr>", mode = "t", desc = "Exit terminal mode + toggle term" },
+		{
+			"<C-j>",
+			"<C-\\><C-n><cmd>ToggleTerm<cr>",
+			mode = "t",
+			desc = "Exit terminal mode + toggle term",
+		},
 	},
 
 	config = function()
