@@ -114,6 +114,10 @@ set $ws10 "10"
 # Set apps to specific workspaces
 assign [class="XTerm"] $ws1
 assign [class="Brave-browser"] $ws2
+assign [class="thunderbird"] $ws3
+
+# xterm - tabbed
+for_window [class="XTerm"] layout tabbed
 
 # switch to workspace
 bindsym $mod+1 workspace number $ws1
