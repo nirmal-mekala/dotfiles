@@ -233,11 +233,11 @@ function fh() {
 
 function mkncd() { mkdir -p "$1" && cd "$1"; }
 
-function tms() {
-  session="$(tmux ls | grep -v "attached" | awk '{print $1}' | sed 's/://' | fzf --tmux)"
+function tml() {
   if [ -n "$TMUX" ]; then
-    tmux switch-client -t "$session"
+    tmux choose-tree -s
   else
+    session="$(tmux ls | grep -v "attached" | awk '{print $1}' | sed 's/://' | fzf)"
     tmux attach-session -t "$session"
   fi
 }
