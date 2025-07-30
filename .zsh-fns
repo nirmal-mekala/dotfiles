@@ -234,7 +234,7 @@ function fh() {
 function mkncd() { mkdir -p "$1" && cd "$1"; }
 
 function tms() {
-  session="$(tmux ls | grep -v "attached" | awk '{print $1}' | sed 's/://' | fzf)"
+  session="$(tmux ls | grep -v "attached" | awk '{print $1}' | sed 's/://' | fzf --tmux)"
   if [ -n "$TMUX" ]; then
     tmux switch-client -t "$session"
   else
@@ -243,9 +243,8 @@ function tms() {
 }
 
 function tmdel() {
-  sessions="$(tmux ls | grep -v "attached" | awk '{print $1}' | sed 's/://' | fzf --multi)"
-
+  sessions="$(tmux ls | grep -v "attached" | awk '{print $1}' | sed 's/://' | fzf --multi --tmux)"
   echo "$sessions" | while IFS= read -r session; do
-    tmux kill-session -t "$session"
+    [ -n "$session" ] && tmux kill-session -t "$session"
   done
 }
