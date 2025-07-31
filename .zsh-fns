@@ -233,7 +233,7 @@ function mkncd() { mkdir -p "$1" && cd "$1"; }
 mxg() {
   local git_dir=$(fzf_git_dir)
   if [[ -n "$git_dir" ]]; then
-    mx $(fzf_git_dir)
+    mx "$git_dir"
   fi
 }
 
