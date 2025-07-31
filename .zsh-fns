@@ -254,7 +254,7 @@ function mx() {
   if [[ -n "$input" ]]; then
     if [[ -d "$input" ]]; then
       dir=$(realpath "$input")
-      session=$(basename "$dir" | tr . _)
+      session=$(basename "$dir" | tr -d '.')
     else
       session="$input"
     fi
