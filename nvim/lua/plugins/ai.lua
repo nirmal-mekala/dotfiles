@@ -4,7 +4,7 @@ return {
 	"Exafunction/windsurf.vim",
 	event = "BufEnter",
 	config = function()
-		vim.g.codeium_filtypes = {
+		vim.g.codeium_filetypes = {
 			markdown = false,
 			text = false,
 			csv = false,
