@@ -47,9 +47,11 @@ return {
 				mappings = {
 					i = {
 						["<CR>"] = smart_tab_open,
+						["<C-s>"] = actions.select_default,
 					},
 					n = {
 						["<CR>"] = smart_tab_open,
+						["<C-s>"] = actions.select_default,
 					},
 				},
 			},
