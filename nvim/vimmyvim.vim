@@ -64,7 +64,7 @@ inoremap <C-]> ’
 augroup markdown
   autocmd!
   autocmd FileType markdown,mkd inoremap ... …
-        \ | call pencil#init({'wrap': 'hard', 'autoformat': 1})
+        \ | call pencil#init({'wrap': 'hard', 'autoformat': 1, 'conceallevel': 0})
 augroup END
 
 " keymap: toggle relative line #s
