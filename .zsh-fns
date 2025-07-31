@@ -60,14 +60,9 @@ xt () {
   fi
 }
 
-# fff
-f() {
-  check_command fff || return 1
-  fff "$@"
-  cd "$(cat "$HOME/.cache/fff/.fff_d")"
-}
 
 ### ghq
+
 ghq() {
   if whence -p ghq > /dev/null 2>&1 ; then
     command ghq "$@"
