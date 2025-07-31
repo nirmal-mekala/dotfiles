@@ -283,7 +283,7 @@ function mx() {
 }
 
 function mxk() {
-  sessions="$(tmux ls | grep -v "attached" | awk '{print $1}' | sed 's/://' | fzf --multi --tmux)"
+  sessions="$(tmux ls | awk '{print $1}' | sed 's/://' | fzf --multi --tmux)"
   echo "$sessions" | while IFS= read -r session; do
     [ -n "$session" ] && tmux kill-session -t "$session"
   done
