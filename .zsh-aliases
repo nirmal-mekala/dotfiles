@@ -14,7 +14,3 @@ alias gcb="git checkout -b"
 # todo.sh
 alias t="$TODO_SH_LOCATION -t -a"
 alias i="$TODO_SH_LOCATION -t -a addto inbox.txt"
-
-# tmux
-alias tmr="tmux rename-session"
-alias tmd="tmux detach"

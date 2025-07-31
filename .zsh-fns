@@ -17,14 +17,14 @@ check_command() {
   fi
 }
 
+fzf_git_dir() {
+  find ~/ghq -maxdepth 3 -mindepth 3 -type d | fzf
+}
+
 # Select ghq location with fzf
 fhq () {
   check_command fzf || return 1
-  if whence -p ghq > /dev/null 2>&1; then
-    cd $(ghq list --full-path | fzf)
-  else
-    cd $(find ~/ghq -maxdepth 3 -mindepth 3 -type d  | fzf)
-  fi
+  cd $(fzf_git_dir)
 }
 
 
@@ -228,31 +228,69 @@ function fh() {
 
 function mkncd() { mkdir -p "$1" && cd "$1"; }
 
-function tml() {
-  if [ -n "$TMUX" ]; then
-    tmux choose-tree -s
-  else
-    session="$(tmux ls | grep -v "attached" | awk '{print $1}' | sed 's/://' | fzf)"
-    tmux attach-session -t "$session"
+# TMUX
+
+mxg() {
+  local git_dir=$(fzf_git_dir)
+  if [[ -n "$git_dir" ]]; then
+    mx $(fzf_git_dir)
   fi
 }
 
-function tmdel() {
+function mxc() {
+  tmux choose-tree
+}
+
+function mx() {
+  emulate -L zsh
+  setopt pipefail
+
+  local input session dir
+
+  if [[ -n "$1" ]]; then
+    input="$1"
+  fi
+
+  if [[ -n "$input" ]]; then
+    if [[ -d "$input" ]]; then
+      dir=$(realpath "$input")
+      session=$(basename "$dir" | tr . _)
+    else
+      session="$input"
+    fi
+    if ! tmux has-session -t "$session" 2>/dev/null; then
+      tmux new-session -d -s "$session" -c "$dir"
+    fi
+  else
+    local sessions
+    sessions=$(tmux ls | grep -v "attached")
+    if [[ -z "$sessions" ]]; then
+      echo "No available (detached) tmux sessions."
+      echo "You can supply a name or directory as an argument to create one."
+      return 0
+    fi
+    session=$(echo "$sessions" | fzf --tmux | awk '{print $1}' | sed 's/://' )
+    if [[ -z "$session" ]]; then
+      return 0
+    fi
+  fi
+
+  if [[ -z "$TMUX" ]]; then
+    tmux attach-session -t "$session"
+  else
+    tmux switch-client -t "$session"
+  fi
+}
+
+function mxk() {
   sessions="$(tmux ls | grep -v "attached" | awk '{print $1}' | sed 's/://' | fzf --multi --tmux)"
   echo "$sessions" | while IFS= read -r session; do
     [ -n "$session" ] && tmux kill-session -t "$session"
   done
 }
 
-function tmn() {
-  if [ -z "$1" ]; then
-    echo "Usage: tmn <session_name>"
-  else
-    tmux new-session -d -s "$1"
-    if [ -n "$TMUX" ]; then
-      tmux switch-client -t "$1"
-    else
-      tmux attach-session -t "$1"
-    fi
-  fi
+function mxd() {
+  tmux detach
 }
+
+
