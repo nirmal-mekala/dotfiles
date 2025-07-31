@@ -1,6 +1,5 @@
 return {
 	"akinsho/toggleterm.nvim",
-	version = "*",
 	keys = {
 		{
 			"<C-j>",
@@ -13,6 +12,18 @@ return {
 			"<C-\\><C-n><cmd>ToggleTerm<cr>",
 			mode = "t",
 			desc = "Exit terminal mode + toggle term",
+		},
+		{
+			"<leader>n",
+			"<cmd>TermNew<cr>",
+			mode = { "n", "t" },
+			desc = "New Terminal",
+		},
+		{
+			"<leader>s",
+			"<cmd>TermSelect<cr>",
+			mode = { "n", "t" },
+			desc = "Select Terminal",
 		},
 	},
 
