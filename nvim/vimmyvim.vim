@@ -77,3 +77,6 @@ nnoremap K gT
 " keymap: markdown todos
 nnoremap <leader>x 0f]hrxla done:<C-R>=strftime('%y%m%d')<CR><ESC>0j
 nnoremap <leader>z 0f[i~~<ESC>A~~<ESC>0j
+
+" keymap: select all
+nnoremap <leader>a ggVG
