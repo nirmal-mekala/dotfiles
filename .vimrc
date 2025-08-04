@@ -7,7 +7,7 @@ endif
 
 call plug#begin()
 
-Plug 'preservim/vim-pencil'
+" Plug 'preservim/vim-pencil'
 Plug 'NLKNguyen/papercolor-theme'
 
 call plug#end()
