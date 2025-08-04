@@ -216,7 +216,7 @@ function rmnl() {
 }
 
 function vzf() {
-  fzf --bind 'enter:become(nvim {})'
+  fzf --preview="cat {}" --bind 'enter:become(nvim {})'
 }
 
 
