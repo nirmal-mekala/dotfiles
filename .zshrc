@@ -16,8 +16,9 @@ fi
 # fzf zsh completion requries version >= 0.48.0
 check_command fzf && [[ $(printf '%s\n' $(fzf --version | awk '{print $1}') "0.48.0" | sort -V | head -n1)  == "0.48.0" ]] && source <(fzf --zsh)
 
+export PATH="$HOME/.dotfiles/bin:$PATH"
 autoload -Uz compinit && compinit # autocomplete
 bindkey -r "^X" # give vim ctrl x
 bindkey -v '^?' backward-delete-char
-export EDITOR="nvim" # neovim default editor
+export EDITOR="nvim"
 setopt HIST_IGNORE_SPACE

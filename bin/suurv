@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# Create a temporary directory
+temp_dir=$(mktemp -d)
+
+# Check if the temp directory was successfully created
+if [[ ! -d "$temp_dir" ]]; then
+  echo "Failed to create temp directory"
+  exit 1
+fi
+
+# Write the input passed through stdin to a file in the temp directory
+cat > "$temp_dir/index.html"
+
+# Print the location of the temp directory and file
+echo "Data has been written to: $temp_dir/index.html"
+
+echo "Starting HTTP server in $temp_dir"
+cd "$temp_dir"
+python3 -m http.server
+
+echo "Removing $temp_dir"
+rm -rf "$temp_dir"

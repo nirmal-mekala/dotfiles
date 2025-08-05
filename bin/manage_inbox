@@ -1,0 +1,193 @@
+#!/usr/bin/env bash
+
+# Get full directory name of this script
+# cwd="$(cd "$(dirname "$0")" && pwd)"
+
+# Check for necessary files and env vars
+if [ ! -n "$ORG_DIRECTORY" ]; then
+  echo "Error: ORG_DIRECTORY environment variable not set"
+  exit 1
+elif [ ! -f "$ORG_DIRECTORY/todo/todo.md" ]; then
+  echo "Error: todo.md does not exist"
+  exit 1
+elif [ ! -f "$ORG_DIRECTORY/todo/upcoming.md" ]; then
+  echo "Error: upcoming.md does not exist"
+  exit 1
+fi
+
+process_upcoming=0
+task_to_add_arg=""
+
+usage() {
+  echo "Usage: $0 [-u] [-t <task_to_add>] [-h]"
+  echo ""
+  echo "Options:"
+  echo "  -u                Import upcoming tasks from upcoming.md file"
+  echo "  -t <task_to_add>  Task to add to the todo.md file"
+  echo "  -h                Show this help message"
+  echo ""
+  echo "Environment Variables:"
+  echo "  ORG_DIRECTORY      Directory where the todo folder is located."
+  echo ""
+  echo "Example:"
+  echo "  $0 -t \"Complete the project report\""
+  echo "  $0 -u -t \"Plan team meeting\""
+  echo "  $0 -h"
+  echo ""
+  exit 1
+}
+
+while getopts ":hut:" opt; do
+  case ${opt} in
+    h)
+      usage
+      ;;
+    u)
+      process_upcoming=1
+      ;;
+    t)
+      task_to_add_arg=$OPTARG
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      usage
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      usage
+      ;;
+  esac
+done
+
+
+if [[ "$process_upcoming" -eq 0 ]] && [[ ! -n "$task_to_add_arg" ]]; then
+  usage
+fi
+
+# Temp files
+temp_upcoming=$(mktemp)
+temp_tasks_to_add=$(mktemp)
+temp_other_sections=$(mktemp)
+temp_todo=$(mktemp)
+
+# Markdown files
+todo_md="$ORG_DIRECTORY/todo/todo.md"
+upcoming_md="$ORG_DIRECTORY/todo/upcoming.md"
+
+confirm() {
+  # Ask for user confirmation
+  read -r -p "$1 [Y/n] " response
+  case "$response" in
+    [yY][eE][sS]|[yY])
+      return 0  # Success (yes)
+      ;;
+    *)
+      return 1  # Failure (no)
+      ;;
+  esac
+}
+
+
+process_upcoming_md() {
+  dry_run=$1
+  while IFS= read -r task; do
+    if [ -n "$task" ]; then
+      import_date=$(echo "$task" | grep -o 'when:[0-9]\{6\}' | cut -d':' -f2)
+      # Validate that import_date is a 6-digit number
+      if [[ "$import_date" =~ ^[0-9]{6}$ ]]; then
+        if [ "$import_date" -le $(date '+%y%m%d') ]; then
+          shortened_task=$(echo "$task" | sed 's/ when:[0-9]\{6\}//g')
+          if [[ "$dry_run" -eq 0 ]]; then
+            printf "\033[33mImporting…\033[0m\n"
+            printf "\033[33m$shortened_task\033[0m\n"
+            echo "$shortened_task" >> "$temp_tasks_to_add"
+          else
+            printf "\033[33mWould import…\033[0m\n"
+            printf "\033[33m$shortened_task\033[0m\n"
+          fi
+        else
+          if [[ "$dry_run" -eq 0 ]]; then
+            printf "\033[32mSkipping…\033[0m\n"
+            printf "\033[32m$task\033[0m\n"
+            echo "$task" >> "$temp_upcoming"
+          else
+            printf "\033[32mWould skip…\033[0m\n"
+            printf "\033[32m$task\033[0m\n"
+          fi
+        fi
+      else
+        printf "\033[31mInvalid import date format: $import_date\033[0m\n"
+        printf "\033[31m$task\033[0m\n"
+        echo "$task" >> "$temp_upcoming"
+      fi
+    fi
+  done < "$upcoming_md"
+  # save upcoming file
+  if [[ "$dry_run" -eq 0 ]]; then
+    cat "$temp_upcoming" > "$upcoming_md"
+  fi
+}
+
+init_temp_todo_with_kanban_header() {
+
+  cat <<EOF >> "$temp_todo"
+---
+
+kanban-plugin: board
+
+---
+
+EOF
+
+}
+
+# Extract tasks from upcoming file
+if [ "$process_upcoming" -eq 1 ]; then
+  process_upcoming_md 1
+  confirm "Would you like to add any tasks to the todo.md file?" && process_upcoming_md 0
+fi
+
+init_temp_todo_with_kanban_header
+
+# Build out new todo file
+within_inbox=0
+while IFS= read -r line; do
+  # turn off "within inbox" when you encounter the next header
+  if echo "$line" | grep -q '^##' && [ "$within_inbox" -eq 1 ]; then
+    within_inbox=0
+  fi
+  if [ "$within_inbox" -eq 1 ]; then
+    # within inbox section, put all non-empty lines in todo file
+    if [ -n "$line" ]; then
+      echo "$line" >> "$temp_todo"
+    fi
+  fi
+  if [ "$line" = "## inbox" ]; then
+    # found inbox header, init todo file
+    within_inbox=1
+    echo "$line" >> "$temp_todo"
+    echo "" >> "$temp_todo"
+  fi
+  if [ "$within_inbox" -eq 0 ]; then
+    # extract all other lines to "other sections file"
+    echo "$line" >> "$temp_other_sections"
+  fi
+done <  "$todo_md"
+
+# Handle adding task via CLI arg
+if [ -n "$task_to_add_arg" ]; then
+  echo "- [ ] $task_to_add_arg" >> $temp_tasks_to_add
+  printf "\033[32mAdding task $task_to_add_arg to todo.md\033[0m\n"
+fi
+
+# build out remainder of todo file with tasks to add and other sections
+
+printf "\033[32mWriting to todo.md…\033[0m\n"
+
+cat "$temp_tasks_to_add" >> "$temp_todo"
+echo "" >> "$temp_todo"
+cat "$temp_other_sections" | awk '{ text = text $0 "\n"} END {gsub(/---\n\nkanban-plugin: board\n\n---\n\n/, "", text); printf "%s", text}' >> "$temp_todo"
+
+# save todo file
+cat "$temp_todo" > "$ORG_DIRECTORY/todo/todo.md"
+printf "\033[32mDone!\033[0m\n"
