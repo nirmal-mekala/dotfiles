@@ -238,7 +238,11 @@ mxg() {
 }
 
 function mxc() {
-  tmux choose-tree
+  tmux choose-tree -sw
+}
+
+function mxl() {
+  tmux list-sessions
 }
 
 function mx() {
@@ -292,5 +296,3 @@ function mxk() {
 function mxd() {
   tmux detach
 }
-
-
