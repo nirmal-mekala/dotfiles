@@ -296,3 +296,7 @@ function mxk() {
 function mxd() {
   tmux detach
 }
+
+function ks() {
+  lsof -i @localhost | tail -n +2 | fzf --multi | awk {'print $2'} | xargs -I{} kill -9 {}
+}
