@@ -4,8 +4,9 @@
 
 ## Usage
 
-The script in this directory assumes the directory exists at
-`~/.dotfiles`. Clone the repo to that location. 
+> [!IMPORTANT]
+> The script in this directory assumes the directory exists at
+> `~/.dotfiles`. Clone the repo to that location. 
 
 ```sh
 git clone https://github.com/nirmal-mekala/dotfiles ~/.dotfiles
@@ -38,6 +39,7 @@ It will backup existing files and skip if a symlink already exists.
 - colorschemes for iTerm on macOS
 - config and colorschemes for `xterm` on other systems
 - a simple `i3` configuration
+- `bin` directory for scripts - `.zshrc` will add it to the path
 
 I’ve used these dots as a base to configure macOS, Linux, and OpenBSD
 systems. The script will (harmlessly) set up _all_ the config files, not
