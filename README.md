@@ -22,9 +22,13 @@ cd ~/.dotfiles
 
 This script performs three main functions:
 
-- creating simple symlinks between dotfiles in this directory and `~`
+- creating symlinks between dotfiles in this directory and `~`
+  - anything in the root of this repo that starts with a `.` will get symlinked
+    automatically
 - creating symlinks between subdirectories in this directory and specific
   places within dotfiles (e.g. `nvim` goes to `~/.config/nvim`)
+  - you must manually register these symlinks in the script by adding them to
+    the array
 - copying sample files that need machine-specific configuration
 
 It will backup existing files and skip if a symlink already exists.
@@ -35,9 +39,8 @@ It will backup existing files and skip if a symlink already exists.
 - powerlevel10k zsh setup
 - karabiner elements (macOS keybindings) setup
 - `z` for fast directory jumping
-- a minimalist `tmux` configuration
-- colorschemes for iTerm on macOS
-- config and colorschemes for `xterm` on other systems
+- `tmux` config and scripts
+- terminal config: iTerm (macOS), xterm, kitty
 - a simple `i3` configuration
 - `bin` directory for scripts - `.zshrc` will add it to the path
 
