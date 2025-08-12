@@ -273,7 +273,7 @@ function mx() {
       echo "You can supply a name or directory as an argument to create one."
       return 0
     fi
-    session=$(echo "$sessions" | fzf --tmux | awk '{print $1}' | sed 's/://' )
+    session=$(echo "$sessions" | fzf | awk '{print $1}' | sed 's/://' )
     if [[ -z "$session" ]]; then
       return 0
     fi
