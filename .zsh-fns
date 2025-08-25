@@ -230,7 +230,7 @@ function mkncd() { mkdir -p "$1" && cd "$1"; }
 
 # TMUX
 
-mxg() {
+mxq() {
   local git_dir=$(fzf_git_dir)
   if [[ -n "$git_dir" ]]; then
     mx "$git_dir"
