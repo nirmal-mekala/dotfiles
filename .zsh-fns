@@ -258,11 +258,11 @@ function mx() {
   if [[ -n "$input" ]]; then
     if [[ -d "$input" ]]; then
       dir=$(realpath "$input")
-      session=$(basename "$dir" | tr -d '.')
+      session=$(basename "$dir" | tr '.' '_')
     else
       session="$input"
     fi
-    if ! tmux has-session -t "$session" 2>/dev/null; then
+    if ! tmux list-sessions -F '#S' | grep -Fxq "$session"; then
       tmux new-session -d -s "$session" -c "$dir"
     fi
   else
