@@ -1,7 +1,8 @@
 # misc
 alias ql="qlmanage -p"
 alias sz="source ~/.zshrc"
-alias ws="tmux split-window -h -l 20" #writing split
+alias ws="tmux split-window -h -l 20" #writing split default - horizontal
+alias wsv="tmux split-window -v -l 8" #writing split vertical
 
 # Git Aliases
 alias ga="git add -A"
@@ -10,7 +11,3 @@ alias gs="git status"
 alias gb="git branch"
 alias acp="auto_add_commit_push"
 alias gcb="git checkout -b"
-
-# todo.sh
-alias t="$TODO_SH_LOCATION -t -a"
-alias i="$TODO_SH_LOCATION -t -a addto inbox.txt"
