@@ -24,12 +24,12 @@ return {
 			actions.close(prompt_bufnr)
 
 			-- Check for existing tab with the file
-			for tabnr = 1, vim.fn.tabpagenr("$") do
-				for _, win in ipairs(vim.api.nvim_tabpage_list_wins(tabnr)) do
+			for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
+				for _, win in ipairs(vim.api.nvim_tabpage_list_wins(tabpage)) do
 					local buf = vim.api.nvim_win_get_buf(win)
 					local name = vim.api.nvim_buf_get_name(buf)
 					if name == vim.fn.fnamemodify(filepath, ":p") then
-						vim.cmd(tabnr .. "tabnext")
+						vim.api.nvim_set_current_tabpage(tabpage)
 						vim.api.nvim_set_current_win(win)
 						return
 					end
