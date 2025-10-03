@@ -41,10 +41,6 @@ inoremap ( ()<left>
 inoremap [ []<left>
 inoremap { {}<left>
 
-" keymap: visual mode move block
-vnoremap J :m '>+1<CR>gv=gv
-vnoremap K :m '<-2<CR>gv=gv
-
 " keymap: cursor in middle with C-D/U + search
 nnoremap <C-D> <C-D>zz
 nnoremap <C-U> <C-U>zz
