@@ -19,6 +19,7 @@ order += "battery all"
 # order += "load"
 # order += "memory"
 order += "tztime local"
+order += "volume master"
 
 # wireless _first_ {
 #         format_up = "W: (%quality at %essid) %ip"
@@ -50,4 +51,10 @@ battery all {
 
 tztime local {
         format = "%a %b %d %I:%M %p"
+}
+
+volume master {
+        format = "♪: %volume"
+        format_muted = "♪: muted (%volume)"
+        device = "pulse:1"
 }
