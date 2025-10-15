@@ -178,7 +178,21 @@ function ts() {
   clear
   tput civis
 
+  # Track interruption
+  local interrupted=0
+
+  # Define cleanup function
+  cleanup() {
+    interrupted=1
+  }
+
+  # Trap Ctrl+C (SIGINT) and other termination signals
+  trap cleanup INT TERM
+
   while [ "$(date +%s)" -lt "$end_time" ]; do
+    if (( interrupted )); then
+      break
+    fi
     remaining=$(( end_time - $(date +%s) - 1 ))
     hours=$(( remaining / 3600 ))
     minutes=$(( (remaining % 3600) / 60 ))
@@ -226,6 +240,11 @@ function ts() {
 
   tput cnorm
   echo ""
+
+  if (( interrupted )); then
+    return 1
+  fi
+
   play "$HOME/.timer/end.m4a"
 }
 
