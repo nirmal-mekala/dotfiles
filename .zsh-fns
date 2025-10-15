@@ -175,21 +175,56 @@ function ts() {
   play "$HOME/.timer/start.m4a"
 
   end_time=$(( $(date +%s) + $time_input ))
+  clear
+  tput civis
+
   while [ "$(date +%s)" -lt "$end_time" ]; do
     remaining=$(( end_time - $(date +%s) - 1 ))
     hours=$(( remaining / 3600 ))
     minutes=$(( (remaining % 3600) / 60 ))
     seconds=$(( remaining % 60 ))
-
+  
     time_str=$(printf "%02d:%02d:%02d" $hours $minutes $seconds)
-
-    clear
-    # [ -n "$2" ] && echo "$2"
-    echo ""
-    figlet -f 'ANSI Shadow' "$time_str"| sed 's/^/               /'
+  
+    # Move to top-left
+    tput cup 0 0
+  
+    # Save figlet output to variable
+    figlet_output=$(figlet -f 'ANSI Shadow' "$time_str")
+  
+    # Determine terminal size
+    term_width=$(tput cols)
+  
+    # Get number of lines and max line width in the figlet output
+    line_count=$(echo "$figlet_output" | wc -l)
+    max_line_width=$(echo "$figlet_output" | awk '{ print length }' | sort -nr | head -1)
+  
+    # Clear previous output
+    for ((i = 0; i < line_count + 2; i++)); do
+      printf '%*s\n' "$term_width" ''
+    done
+  
+    # Move back to top
+    tput cup 0 0
+  
+    # Optional: center any message passed as $2
+    if [ -n "$2" ]; then
+      msg_pad=$(( (term_width - ${#2}) / 2 ))
+      printf "%*s%s\n\n" "$msg_pad" "" "$2"
+    else
+      echo ""
+    fi
+  
+    # Print centered figlet output
+    while IFS= read -r line; do
+      padding=$(( (term_width - ${#line}) / 2 ))
+      printf "%*s%s\n" "$padding" "" "$line"
+    done <<< "$figlet_output"
+  
     sleep 1
-
   done
+
+  tput cnorm
   echo ""
   play "$HOME/.timer/end.m4a"
 }
