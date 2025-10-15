@@ -166,6 +166,7 @@ parse_time_input() {
 
 function ts() {
   check_command ffplay || return 1
+  check_command figlet || return 1
   [ -e "$HOME/.timer/start.m4a" ] || { echo "Error: ~/.timer/start.m4a does not exist!" >&2; return 1; }
   [ -e "$HOME/.timer/end.m4a" ] || { echo "Error: ~/.timer/end.m4a does not exist!" >&2; return 1; }
 
@@ -180,21 +181,13 @@ function ts() {
     minutes=$(( (remaining % 3600) / 60 ))
     seconds=$(( remaining % 60 ))
 
-    # Clear the previous line for the timer to update in place
-    printf "\033c"
+    time_str=$(printf "%02d:%02d:%02d" $hours $minutes $seconds)
 
-    # Boxed timer display
-    printf "$2"
-    printf "\n"
-    printf "┌──────────────┐\n"
-    printf "│              │\n"
-    printf "│   %02d:%02d:%02d   │\n" $hours $minutes $seconds
-    printf "│              │\n"
-    printf "└──────────────┘\n"
-    printf ""
-
+    clear
+    # [ -n "$2" ] && echo "$2"
+    echo ""
+    figlet -f 'ANSI Shadow' "$time_str"| sed 's/^/               /'
     sleep 1
-
 
   done
   echo ""
