@@ -15,3 +15,6 @@
 
 [includeIf "gitdir:~/ghq/bitbucket.org/clockworkers/"]
   path = ~/ghq/bitbucket.org/clockworkers/.gitconfig
+
+[includeIf "gitdir:~/ghq/gitlab.tis.trane.com/"]
+  path = ~/ghq/gitlab.tis.trane.com/.gitconfig
