@@ -24,14 +24,14 @@ return {
 		formatters_by_ft = {
 			lua = { "stylua" },
 			python = { "isort", "black" },
-			javascript = { "prettierd", "prettier", stop_after_first = true },
-			javascriptreact = { "prettierd", "prettier", stop_after_first = true },
-			typescript = { "prettierd", "prettier", stop_after_first = true },
-			typescriptreact = { "prettierd", "prettier", stop_after_first = true },
-			css = { "prettierd", "prettier", stop_after_first = true },
-			scss = { "prettierd", "prettier", stop_after_first = true },
-			sass = { "prettierd", "prettier", stop_after_first = true },
-			less = { "prettierd", "prettier", stop_after_first = true },
+			javascript = { "biome-check", "prettierd", "prettier", stop_after_first = true },
+			javascriptreact = { "biome-check", "prettierd", "prettier", stop_after_first = true },
+			typescript = { "biome-check", "prettierd", "prettier", stop_after_first = true },
+			typescriptreact = { "biome-check", "prettierd", "prettier", stop_after_first = true },
+			css = { "biome-check", "prettierd", "prettier", stop_after_first = true },
+			scss = { "biome-check", "prettierd", "prettier", stop_after_first = true },
+			sass = { "biome-check", "prettierd", "prettier", stop_after_first = true },
+			less = { "biome-check", "prettierd", "prettier", stop_after_first = true },
 		},
 		-- Set default options
 		default_format_opts = {
