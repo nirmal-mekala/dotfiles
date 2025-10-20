@@ -1,8 +1,6 @@
 return {
 	"neovim/nvim-lspconfig",
 	config = function()
-		local lspconfig = require("lspconfig")
-
 		local on_attach = function(client, bufnr)
 			vim.keymap.set("n", "gd", function()
 				local params = vim.lsp.util.make_position_params()
@@ -42,8 +40,10 @@ return {
 			end, { buffer = bufnr, desc = "Diagnostic float open" })
 		end
 
-		lspconfig.ts_ls.setup({
+		vim.lsp.config("ts_ls", {
 			on_attach = on_attach,
 		})
+
+		vim.lsp.enable("ts_ls")
 	end,
 }
