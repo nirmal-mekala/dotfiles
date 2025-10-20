@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+if [[ "$(uname)" != "Darwin" ]]; then
+    echo "sry mac only" >&2
+    exit 1
+fi
+
+osascript <<EOF
+tell application "Brave Browser"
+    set winList to every window
+    set theWindow to item 3 of winList
+    set index of theWindow to 1
+    activate
+end tell
+EOF

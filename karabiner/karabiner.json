@@ -141,25 +141,14 @@
                                     }
                                 ],
                                 "from": {
-                                    "key_code": "f",
-                                    "modifiers": { "optional": ["any"] }
-                                },
-                                "to": [{ "software_function": { "open_application": { "file_path": "/Applications/Firefox Developer Edition.app" } } }],
-                                "type": "basic"
-                            },
-                            {
-                                "conditions": [
-                                    {
-                                        "name": "kb_layer_active",
-                                        "type": "variable_if",
-                                        "value": 1
-                                    }
-                                ],
-                                "from": {
                                     "key_code": "b",
                                     "modifiers": { "optional": ["any"] }
                                 },
-                                "to": [{ "software_function": { "open_application": { "file_path": "/Applications/Brave Browser.app" } } }],
+                                "to": [
+                                    {
+                                        "shell_command": "/bin/sh ~/.dotfiles/bin/next_brave_window"
+                                    }
+                                ],
                                 "type": "basic"
                             },
                             {
