@@ -5,4 +5,4 @@ muttrc*
 i3/config.local
 .xkb/ndm.xkb
 nvim/lua/config/ai.lua
-
+nvim/lazy-lock.json
