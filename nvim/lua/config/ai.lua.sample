@@ -1,0 +1,3 @@
+return {
+  ai_provider = "copilot", -- or "codeium"
+}
