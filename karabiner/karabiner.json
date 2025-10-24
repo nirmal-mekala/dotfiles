@@ -189,11 +189,7 @@
                                     "key_code": "b",
                                     "modifiers": { "optional": ["any"] }
                                 },
-                                "to": [
-                                    {
-                                        "shell_command": "/bin/sh ~/.dotfiles/bin/next_brave_window"
-                                    }
-                                ],
+                                "to": [{ "software_function": { "open_application": { "file_path": "/Applications/Zen.app" } } }],
                                 "type": "basic"
                             },
                             {
