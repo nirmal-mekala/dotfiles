@@ -156,21 +156,6 @@
                                     }
                                 ],
                                 "from": {
-                                    "key_code": "s",
-                                    "modifiers": { "optional": ["any"] }
-                                },
-                                "to": [{ "software_function": { "open_application": { "file_path": "/Applications/Slack.app" } } }],
-                                "type": "basic"
-                            },
-                            {
-                                "conditions": [
-                                    {
-                                        "name": "kb_layer_active",
-                                        "type": "variable_if",
-                                        "value": 1
-                                    }
-                                ],
-                                "from": {
                                     "key_code": "i",
                                     "modifiers": { "optional": ["any"] }
                                 },
