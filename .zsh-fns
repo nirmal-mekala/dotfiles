@@ -40,6 +40,37 @@ gr () {
   fi
 }
 
+# checkout local branch
+gch () {
+  local branch
+  branch=$(git for-each-ref --format='%(refname:short)' refs/heads | fzf)
+  if [[ -z $branch ]]; then
+    return 1
+  fi
+  git checkout "$branch"
+}
+
+gdel () {
+  local cur
+  cur=$(git symbolic-ref --short -q HEAD 2>/dev/null || true)
+  if [[ -n $cur ]]; then
+    list=$(git for-each-ref --format='%(refname:short)' refs/heads | grep -Fxv -- "$cur")
+  else
+    list=$(git for-each-ref --format='%(refname:short)' refs/heads)
+  fi
+
+  if [[ -z $list ]]; then
+    return 1
+  fi
+
+  local sel
+  sel=$(print -r -- "$list" | fzf -m)
+  if [[ -z $sel ]]; then
+    return 1
+  fi
+  print -r -- "$sel" | xargs -r -n1 git branch -d --
+}
+
 # Exa Functions
 ll () {
   if command -v eza > /dev/null 2>&1 ; then
@@ -50,6 +81,7 @@ ll () {
     ls -l "$@"
   fi
 }
+
 xt () {
   if command -v eza > /dev/null 2>&1 ; then
     eza --long --icons --git --group --tree --git-ignore "$@"
