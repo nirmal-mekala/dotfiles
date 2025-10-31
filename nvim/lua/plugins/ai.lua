@@ -9,14 +9,14 @@ if provider == "copilot" then
 	return {
 		"github/copilot.vim",
 		event = "InsertEnter",
-		--		config = function()
-		--			vim.cmd([[ let g:copilot_no_tab_map = v:true ]])
-		--			vim.api.nvim_set_keymap("i", "<C-J>", 'copilot#Accept("<CR>")', {
-		--				expr = true,
-		--				silent = true,
-		--				noremap = true,
-		--			})
-		--		end,
+		config = function()
+			vim.g.copilot_filetypes = {
+				markdown = false,
+				text = false,
+				csv = false,
+				json = false,
+			}
+		end,
 	}
 elseif provider == "codeium" then
 	return {
