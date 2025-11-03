@@ -3,7 +3,7 @@
 set -euo pipefail
 
 if [[ $# -lt 1 ]]; then
-  echo "Usage: vimsplode <directory>" >&2
+  echo "Usage: splode <directory>" >&2
   exit 1
 fi
 
