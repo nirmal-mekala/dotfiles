@@ -8,6 +8,14 @@ return {
 		{
 			"<leader>4",
 			function()
+				require("telescope.builtin").git_files({ hidden = true })
+			end,
+			mode = "n",
+			desc = "Find Files",
+		},
+		{
+			"<leader>2",
+			function()
 				require("telescope.builtin").find_files({ hidden = true })
 			end,
 			mode = "n",
