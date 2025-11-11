@@ -9,7 +9,14 @@ if [ -t 0 ] && [ -n "$1" ]; then
     INPUT="$1"
     exec < "$INPUT"
 elif [ -t 0 ]; then
-    echo "Usage: $0 [optional-xkb-file] < input.xkb"
+    script_name=$(basename "$0")
+    cat <<EOF
+Usage:
+  $script_name [xkb-file]          # Read layout from a file argument
+  $script_name < xkb-file          # Read layout from file via input redirection
+  cat xkb-file | $script_name      # Read layout piped from another command
+  setxkbmap -print | $script_name  # Common real-world use: modify current layout
+EOF
     exit 1
 fi
 
