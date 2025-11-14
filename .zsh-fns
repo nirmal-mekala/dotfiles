@@ -381,5 +381,5 @@ function ks() {
 }
 
 function lk {
-  cd "$(walk --icons "$@")"
+  cd "$(walk --icons --preview "$@")"
 }
