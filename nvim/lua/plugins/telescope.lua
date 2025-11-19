@@ -4,19 +4,26 @@ return {
 	dependencies = { "nvim-lua/plenary.nvim" },
 	cmd = "Telescope",
 	keys = {
-		{ "<leader>3", "<cmd>Telescope live_grep<cr>", mode = "n", desc = "Live Grep" },
 		{
-			"<leader>4",
+			"<leader>2",
 			function()
-				require("telescope.builtin").git_files({ hidden = true })
+				require("telescope.builtin").find_files({ hidden = true })
 			end,
 			mode = "n",
 			desc = "Find Files",
 		},
 		{
-			"<leader>2",
+			"<leader>3",
 			function()
-				require("telescope.builtin").find_files({ hidden = true })
+				require("telescope.builtin").live_grep()
+			end,
+			mode = "n",
+			desc = "Live Grep",
+		},
+		{
+			"<leader>4",
+			function()
+				require("telescope.builtin").git_files()
 			end,
 			mode = "n",
 			desc = "Find Files",
@@ -51,7 +58,7 @@ return {
 		require("telescope").setup({
 			defaults = {
 				layout_strategy = "vertical",
-				layout_config = { height = 0.95 },
+				layout_config = { height = 0.95, preview_cutoff = 1 },
 				mappings = {
 					i = {
 						["<CR>"] = smart_tab_open,
