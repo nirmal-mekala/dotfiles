@@ -97,4 +97,5 @@ function! Netrw_Custom_Mappings()
   nnoremap <buffer> l <Plug>NetrwLocalBrowseCheck
   nnoremap <buffer> h <Plug>NetrwBrowseUpDir
   nnoremap <buffer> qq :quit<CR>
+  nnoremap <buffer> <BS> <Plug>NetrwBrowseUpDir
 endfunction
