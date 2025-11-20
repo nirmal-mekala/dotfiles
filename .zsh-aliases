@@ -3,6 +3,7 @@ alias ql="qlmanage -p"
 alias sz="source ~/.zshrc"
 alias ws="tmux split-window -h -l 20" #writing split default - horizontal
 alias wsv="tmux split-window -v -l 8" #writing split vertical
+alias vx="nvim ." # neovim Explorer
 
 # Git Aliases
 alias ga="git add -A"
