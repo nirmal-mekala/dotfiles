@@ -82,20 +82,20 @@ nnoremap <leader>z 0f[i~~<ESC>A~~<ESC>0j
 nnoremap <leader>a ggVG
 
 " netrw config
-let g:netrw_list_hide = '^\./\=$,^\.\./$'
-let g:netrw_hide = 1
-let g:netrw_banner = 0
-
 nnoremap <leader>5 :Ex<CR>
 
-augroup NetrwMappings
+augroup netrw
   autocmd!
   autocmd FileType netrw call Netrw_Custom_Mappings()
+  autocmd FileType netrw let g:netrw_list_hide = '^\./\=$,^\.\./$'
+  autocmd FileType netrw let g:netrw_hide = 1
+  autocmd FileType netrw let g:netrw_banner = 0
 augroup END
 
 function! Netrw_Custom_Mappings()
   nnoremap <buffer> l <Plug>NetrwLocalBrowseCheck
   nnoremap <buffer> h <Plug>NetrwBrowseUpDir
-  nnoremap <buffer> qq :quit<CR>
+  nnoremap <buffer> <leader>q :quit<CR>
+  nnoremap <buffer> <ESC> :quit<CR>
   nnoremap <buffer> <BS> <Plug>NetrwBrowseUpDir
 endfunction
