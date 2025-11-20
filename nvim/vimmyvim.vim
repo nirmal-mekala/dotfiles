@@ -82,9 +82,15 @@ nnoremap <leader>z 0f[i~~<ESC>A~~<ESC>0j
 nnoremap <leader>a ggVG
 
 " netrw config
+let g:netrw_list_hide = '^\./\=$,^\.\./$'
+let g:netrw_hide = 1
+let g:netrw_banner = 0
+
+nnoremap <leader>5 :Ex<CR>
+
 augroup NetrwMappings
   autocmd!
-  autocmd filetype netrw call Netrw_Custom_Mappings()
+  autocmd FileType netrw call Netrw_Custom_Mappings()
 augroup END
 
 function! Netrw_Custom_Mappings()
