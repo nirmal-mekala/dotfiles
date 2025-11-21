@@ -85,8 +85,6 @@ nnoremap <leader>yp :let @" = expand('%:p')<CR>
 
 
 " netrw config
-nnoremap <leader>5 :Ex<CR>
-
 augroup netrw
   autocmd!
   autocmd FileType netrw call Netrw_Custom_Mappings()
