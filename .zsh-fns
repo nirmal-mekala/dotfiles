@@ -381,5 +381,6 @@ function ks() {
 }
 
 function lk {
-  cd "$(walk --icons --preview "$@")"
+  # cd "$(walk --icons --preview "$@")"
+  nvim .
 }
