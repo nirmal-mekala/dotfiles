@@ -72,14 +72,17 @@ nnoremap <leader>1 :set nu! rnu!<CR>
 " keymap: tab navigation
 nnoremap J gt
 nnoremap K gT
+
+" keymap: default J behavior needs leader
 nnoremap <leader>J J
 
 " keymap: markdown todos
 nnoremap <leader>x 0f]hrxla done:<C-R>=strftime('%y%m%d')<CR><ESC>0j
 nnoremap <leader>z 0f[i~~<ESC>A~~<ESC>0j
 
-" keymap: select all
-nnoremap <leader>a ggVG
+" keymap: yank file path
+nnoremap <leader>yp :let @" = expand('%:p')<CR>
+
 
 " netrw config
 nnoremap <leader>5 :Ex<CR>
