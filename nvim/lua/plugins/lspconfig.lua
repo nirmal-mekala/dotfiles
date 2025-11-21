@@ -31,13 +31,14 @@ return {
 		local on_attach = function(client, bufnr)
 			vim.keymap.set("n", "gd", function()
 				--goto_definition_new_tab()
-				vim.cmd("tab split")
-				vim.lsp.buf.definition({ reuse_win = true })
-			end, { buffer = bufnr, desc = "Goto Definition (new tab if different file)" })
-
-			vim.keymap.set("n", "<leader>gd", function()
+				--previously, gd called a custom function, experimenting with different impls
 				vim.lsp.buf.definition({ reuse_win = true })
 			end, { buffer = bufnr, desc = "Goto Definition (same tab)" })
+
+			vim.keymap.set("n", "<leader>gd", function()
+				vim.cmd("tab split")
+				vim.lsp.buf.definition({ reuse_win = true })
+			end, { buffer = bufnr, desc = "Goto Definition (new tab)" })
 
 			vim.keymap.set("n", "H", function()
 				vim.lsp.buf.hover()
