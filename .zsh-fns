@@ -380,7 +380,6 @@ function ks() {
   lsof -i @localhost | tail -n +2 | fzf --multi | awk {'print $2'} | xargs -I{} kill -9 {}
 }
 
-function lk {
-  # cd "$(walk --icons --preview "$@")"
-  nvim .
-}
+# function lk {
+#   cd "$(walk --icons --preview "$@")"
+# }
