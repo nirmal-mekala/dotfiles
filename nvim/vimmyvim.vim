@@ -57,7 +57,7 @@ vnoremap <leader>d "_d
 " keymap: typography
 inoremap <C-\> “”<left>
 inoremap <C-]> ’
-inoremap <leader><C-]> ‘’<left>
+inoremap <C-]><C-]> ‘’<left>
 augroup markdown
   autocmd!
   autocmd FileType markdown,mkd inoremap --- —
