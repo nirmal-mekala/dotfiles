@@ -55,9 +55,14 @@ nnoremap <leader>d "_d
 vnoremap <leader>d "_d
 
 " keymap: typography
-inoremap <C-\> “”<left>
-inoremap <C-]> ’
-inoremap <C-]><C-]> ‘’<left>
+" double curly quotez
+inoremap dcqz “”<left>
+" single curly quote
+inoremap scq ’
+" single curly quotez
+inoremap scqz ‘’<left>
+inoremap emdsh —
+inoremap endsh –
 augroup markdown
   autocmd!
   autocmd FileType markdown,mkd inoremap ... …
