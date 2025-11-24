@@ -1,3 +1,15 @@
+local function get_git_opts()
+	local function is_git_repo()
+		vim.fn.system("git rev-parse --is-inside-work-tree")
+		return vim.v.shell_error == 0
+	end
+	local function get_git_root()
+		local dot_git_path = vim.fn.finddir(".git", ".;")
+		return vim.fn.fnamemodify(dot_git_path, ":h")
+	end
+	return is_git_repo() and { cwd = get_git_root() } or {}
+end
+
 return {
 	"nvim-telescope/telescope.nvim",
 	tag = "0.1.8",
@@ -15,26 +27,7 @@ return {
 		{
 			"<leader>3",
 			function()
-      	local function is_git_repo()
-      		vim.fn.system("git rev-parse --is-inside-work-tree")
-      
-      		return vim.v.shell_error == 0
-      	end
-      
-      	local function get_git_root()
-      		local dot_git_path = vim.fn.finddir(".git", ".;")
-      		return vim.fn.fnamemodify(dot_git_path, ":h")
-      	end
-      
-      	local opts = {}
-      
-      	if is_git_repo() then
-      		opts = {
-      			cwd = get_git_root(),
-      		}
-      	end
-      
-      	require("telescope.builtin").live_grep(opts)
+				require("telescope.builtin").live_grep(get_git_opts())
 			end,
 			mode = "n",
 			desc = "Live Grep",
@@ -47,6 +40,14 @@ return {
 			mode = "n",
 			desc = "Find Files",
 		},
+		{
+			"<leader>5",
+			function()
+				require("telescope.builtin").grep_string(get_git_opts())
+			end,
+			mode = "n",
+			desc = "Grep String",
+		},
 	},
 	config = function()
 		local actions = require("telescope.actions")
@@ -56,7 +57,6 @@ return {
 			local entry = action_state.get_selected_entry()
 			local filepath = entry.path or entry.filename
 			actions.close(prompt_bufnr)
-
 			-- Check for existing tab with the file
 			for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
 				for _, win in ipairs(vim.api.nvim_tabpage_list_wins(tabpage)) do
@@ -69,7 +69,6 @@ return {
 					end
 				end
 			end
-
 			-- If not found, open in new tab
 			vim.cmd("tabnew " .. vim.fn.fnameescape(filepath))
 		end

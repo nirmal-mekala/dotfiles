@@ -295,7 +295,7 @@ function rmnl() {
 }
 
 function vzf() {
-  fzf --preview="cat {}" --bind 'enter:become(nvim {})'
+  fzf --preview="cat {}" --preview-window=up --bind 'enter:become(nvim {})'
 }
 
 
@@ -379,7 +379,3 @@ function mxd() {
 function ks() {
   lsof -i @localhost | tail -n +2 | fzf --multi | awk {'print $2'} | xargs -I{} kill -9 {}
 }
-
-# function lk {
-#   cd "$(walk --icons --preview "$@")"
-# }
