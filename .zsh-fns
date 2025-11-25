@@ -379,3 +379,8 @@ function mxd() {
 function ks() {
   lsof -i @localhost | tail -n +2 | fzf --multi | awk {'print $2'} | xargs -I{} kill -9 {}
 }
+
+f() {
+    fff "$@"
+    cd "$(cat "${XDG_CACHE_HOME:=${HOME}/.cache}/fff/.fff_d")"
+}
