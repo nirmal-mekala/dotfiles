@@ -78,15 +78,12 @@ return {
 				layout_strategy = "vertical",
 				layout_config = { height = 0.95, preview_cutoff = 1 },
 				mappings = {
-					-- try to use default for a bit
-					--					i = {
-					--						["<CR>"] = smart_tab_open,
-					--						["<C-s>"] = actions.select_default,
-					--					},
-					--					n = {
-					--						["<CR>"] = smart_tab_open,
-					--						["<C-s>"] = actions.select_default,
-					--					},
+					i = {
+						["<C-s>"] = actions.select_tab,
+					},
+					n = {
+						["<C-s>"] = actions.select_tab,
+					},
 				},
 			},
 		})
