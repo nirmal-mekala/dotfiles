@@ -61,6 +61,7 @@ inoremap <C-]><C-]> ‘’<left>
 augroup markdown
   autocmd!
   autocmd FileType markdown,mkd inoremap --- —
+  autocmd FileType markdown,mkd inoremap !-- !--
   autocmd FileType markdown,mkd inoremap -- –
   autocmd FileType markdown,mkd inoremap ... …
   autocmd FileType markdown,mkd setlocal textwidth=80 
@@ -85,6 +86,8 @@ nnoremap <leader>z 0f[i~~<ESC>A~~<ESC>0j
 " keymap: yank file path
 nnoremap <leader>yp :let @" = expand('%:p')<CR>
 
+" command: quick fix tabss
+command! Qft cfdo silent tabedit %
 
 " netrw config
 augroup netrw
