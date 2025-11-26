@@ -80,11 +80,11 @@ return {
 				mappings = {
 					i = {
 						["<C-s>"] = actions.select_tab,
-						["<C-q>"] = actions.send_selected_to_qf,
+						["<C-q>"] = actions.send_selected_to_qflist,
 					},
 					n = {
 						["<C-s>"] = actions.select_tab,
-						["<C-q>"] = actions.send_selected_to_qf,
+						["<C-q>"] = actions.send_selected_to_qflist,
 					},
 				},
 			},
