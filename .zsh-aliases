@@ -6,8 +6,6 @@ alias wsv="tmux split-window -v -l 8" #writing split vertical
 alias vx="nvim ." # neovim Explorer
 
 # Git Aliases
-alias ga="git add -A"
-alias gp="git push"
 alias gs="git status"
 alias gb="git branch"
 alias acp="auto_add_commit_push"
