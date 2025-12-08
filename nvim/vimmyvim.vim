@@ -57,8 +57,12 @@ vnoremap <leader>d "_d
 " keymap: typography
 inoremap <C-\> “”<left>
 inoremap <C-]> ’
+inoremap <C-]><C-]> ‘’<left>
 augroup markdown
   autocmd!
+  autocmd FileType markdown,mkd inoremap --- —
+  autocmd FileType markdown,mkd inoremap !-- !--
+  autocmd FileType markdown,mkd inoremap -- –
   autocmd FileType markdown,mkd inoremap ... …
   autocmd FileType markdown,mkd setlocal textwidth=80 
   autocmd FileType markdown,mkd setlocal formatoptions-=l
@@ -72,9 +76,32 @@ nnoremap <leader>1 :set nu! rnu!<CR>
 nnoremap J gt
 nnoremap K gT
 
+" keymap: default J behavior needs leader
+nnoremap <leader>J J
+
 " keymap: markdown todos
 nnoremap <leader>x 0f]hrxla done:<C-R>=strftime('%y%m%d')<CR><ESC>0j
 nnoremap <leader>z 0f[i~~<ESC>A~~<ESC>0j
 
-" keymap: select all
-nnoremap <leader>a ggVG
+" keymap: yank file path
+nnoremap <leader>yp :let @" = expand('%:p')<CR>
+
+" command: quick fix tabss
+command! Qft cfdo silent tabedit %
+
+" netrw config
+augroup netrw
+  autocmd!
+  autocmd FileType netrw call Netrw_Custom_Mappings()
+  autocmd FileType netrw let g:netrw_list_hide = '^\./\=$,^\.\./$'
+  autocmd FileType netrw let g:netrw_hide = 1
+  autocmd FileType netrw let g:netrw_banner = 0
+augroup END
+
+function! Netrw_Custom_Mappings()
+  nnoremap <buffer> l <Plug>NetrwLocalBrowseCheck
+  nnoremap <buffer> h <Plug>NetrwBrowseUpDir
+  nnoremap <buffer> <leader>q :quit<CR>
+  nnoremap <buffer> <ESC> :quit<CR>
+  nnoremap <buffer> <BS> <Plug>NetrwBrowseUpDir
+endfunction

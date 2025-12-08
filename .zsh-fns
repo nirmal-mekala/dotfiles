@@ -295,7 +295,7 @@ function rmnl() {
 }
 
 function vzf() {
-  fzf --preview="cat {}" --bind 'enter:become(nvim {})'
+  fzf --preview="cat {}" --preview-window=up --bind 'enter:become(nvim {})'
 }
 
 
@@ -366,7 +366,7 @@ function mx() {
 }
 
 function mxk() {
-  sessions="$(tmux ls | awk '{print $1}' | sed 's/://' | fzf --multi --tmux)"
+  sessions="$(tmux ls | awk '{print $1}' | sed 's/://' | fzf --multi)"
   echo "$sessions" | while IFS= read -r session; do
     [ -n "$session" ] && tmux kill-session -t "$session"
   done
@@ -380,6 +380,7 @@ function ks() {
   lsof -i @localhost | tail -n +2 | fzf --multi | awk {'print $2'} | xargs -I{} kill -9 {}
 }
 
-function lk {
-  cd "$(walk "$@")"
+f() {
+    fff "$@"
+    cd "$(cat "${XDG_CACHE_HOME:=${HOME}/.cache}/fff/.fff_d")"
 }
