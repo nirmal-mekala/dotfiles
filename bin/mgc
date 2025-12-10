@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# "mgc" as in MerGe Conflict
+
+git diff --diff-filter=U --name-only | nvim-qf
