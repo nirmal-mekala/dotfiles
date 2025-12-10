@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+nvim  -c "set errorformat=%f" -c "cgetbuffer" -c "bd!" -c "Qft" -
