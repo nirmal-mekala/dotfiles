@@ -59,12 +59,10 @@ bindsym $mod+d exec --no-startup-id dmenu_run
 # bindcode $mod+40 exec --no-startup-id i3-dmenu-desktop
 
 # change focus
-# bindsym $mod+h focus left
+bindsym $mod+h focus left
 bindsym $mod+j focus down
 bindsym $mod+k focus up
-# bindsym $mod+l focus right
-bindsym $mod+Tab focus right
-bindsym $mod+Shift+Tab focus left
+bindsym $mod+l focus right
 
 # move focused window
 bindsym $mod+Shift+h move left
@@ -183,7 +181,11 @@ bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcu
 for_window [class=".*"] border pixel 0
 gaps inner 10
 gaps outer 10
-exec_always --no-startup-id xsetroot -solid "#5f8787"
+# configure bgs locally:
+# e.g.
+# exec_always --no-startup-id xsetroot -solid "#5f8787"
+# e.g.
+# exec_always --no-startup-id sh -c "/home/linuxbrew/.linuxbrew/bin/feh --bg-fill ~/Desktop/.bgs/winter.jpg"
 
 # xkb setup
 exec_always --no-startup-id bash -c 'xkbcomp -I"$HOME/.xkb" "$HOME/.xkb/ndm.xkb" "$DISPLAY"'
