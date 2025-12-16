@@ -186,21 +186,6 @@
                                     }
                                 ],
                                 "from": {
-                                    "key_code": "e",
-                                    "modifiers": { "optional": ["any"] }
-                                },
-                                "to": [{ "software_function": { "open_application": { "file_path": "/Applications/Thunderbird.app" } } }],
-                                "type": "basic"
-                            },
-                            {
-                                "conditions": [
-                                    {
-                                        "name": "kb_layer_active",
-                                        "type": "variable_if",
-                                        "value": 1
-                                    }
-                                ],
-                                "from": {
                                     "key_code": "o",
                                     "modifiers": { "optional": ["any"] }
                                 },
