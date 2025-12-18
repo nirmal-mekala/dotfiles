@@ -294,11 +294,6 @@ function rmnl() {
   awk '{printf "%s", $0}'
 }
 
-function vzf() {
-  fzf --preview="cat {}" --preview-window=up --bind 'enter:become(nvim {})'
-}
-
-
 function fh() {
   # List history without numbers, reverse so newest are first,
   # escape backslashes, then fuzzy-find and eval.
