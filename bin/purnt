@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ---- config ----
+TMPDIR="${TMPDIR:-/tmp}"
+PRINTER="${PRINTER:-}"   # optional: export PRINTER=MyPrinter
+# ----------------
+
+if [[ $# -ne 1 ]]; then
+  echo "Usage: $0 file.md"
+  exit 1
+fi
+
+MD_FILE="$1"
+
+if [[ ! -f "$MD_FILE" ]]; then
+  echo "[ERROR] File not found: $MD_FILE"
+  exit 1
+fi
+
+BASENAME="$(basename "$MD_FILE" .md)"
+PDF_FILE="$TMPDIR/${BASENAME}.XXXXXX.pdf"
+
+echo "[INFO] Converting Markdown to PDF..."
+pandoc -s "$MD_FILE" -o "$PDF_FILE"
+
+echo "[INFO] PDF created at $PDF_FILE"
+
+echo "[INFO] Sending job to printer..."
+if [[ -n "$PRINTER" ]]; then
+  JOB_ID=$(lp -d "$PRINTER" "$PDF_FILE" | awk '{print $4}')
+else
+  JOB_ID=$(lp "$PDF_FILE" | awk '{print $4}')
+fi
+
+echo "[INFO] Print job submitted (Job ID: $JOB_ID)"
+
+# echo "[INFO] Waiting for print job to complete..."
+# Wait until job is finished (CUPS feature)
+# lp -W completed "$JOB_ID"
+
+# echo "[INFO] Print job completed"
+
+echo "[INFO] Cleaning up temporary file..."
+rm -f "$PDF_FILE"
+
+echo "[INFO] Done."
+
