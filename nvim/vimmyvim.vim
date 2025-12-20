@@ -62,6 +62,7 @@ augroup markdown
   autocmd!
   autocmd FileType markdown,mkd inoremap --- —
   autocmd FileType markdown,mkd inoremap !-- !--
+  autocmd FileType markdown,mkd inoremap --> -->
   autocmd FileType markdown,mkd inoremap -- –
   autocmd FileType markdown,mkd inoremap ... …
   autocmd FileType markdown,mkd setlocal textwidth=80 
