@@ -90,6 +90,9 @@ nnoremap <leader>yp :let @" = expand('%:p')<CR>
 " command: quick fix tabss
 command! Qft cfdo silent tabedit %
 
+" macro: fix import (assumes @ <--> /src dir)
+call setreg('z', "f'ld/srcvllls@$d?\\.:noh0")
+
 " netrw config
 augroup netrw
   autocmd!
