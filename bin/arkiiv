@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "$(basename "$PWD")" != "pensieve" ]]; then
+  echo "arkiiv: must be run inside a directory named 'pensieve'." >&2
+  exit 1
+fi
+
+if [[ $# -gt 1 ]]; then
+  echo "usage: arkiiv [destination_directory]" >&2
+  exit 1
+fi
+
+dest="${1:-./archive}"
+if [[ ! -d "$dest" ]]; then
+  echo "arkiiv: destination must be an existing directory: $dest" >&2
+  exit 1
+fi
+
+find . -maxdepth 1 -type f \( -name '*.md' -o -name '*.markdown' \) -print0 \
+  | fzf --read0 --print0 --multi \
+      --preview 'bat --style=plain --color=always --line-range=:300 {}' \
+      --preview-window 'right,50%,wrap' \
+  | xargs -0 -I {} mv -- "{}" "$dest"/
