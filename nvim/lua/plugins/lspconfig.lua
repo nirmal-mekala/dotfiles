@@ -1,6 +1,8 @@
 return {
 	"neovim/nvim-lspconfig",
 	config = function()
+		local deprecated_highlight = require("config.deprecated_highlight")
+
 		local function goto_definition_new_tab()
 			local params = vim.lsp.util.make_position_params()
 
@@ -51,6 +53,8 @@ return {
 			vim.keymap.set("n", "<leader>d", function()
 				vim.diagnostic.open_float()
 			end, { buffer = bufnr, desc = "Diagnostic float open" })
+
+			deprecated_highlight.setup(bufnr)
 		end
 
 		vim.lsp.config("ts_ls", {
