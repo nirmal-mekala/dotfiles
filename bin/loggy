@@ -6,7 +6,11 @@ const http = require('http');
 const { randomUUID } = require('crypto');
 
 const DEFAULT_PORT = 4319;
-const HOST = '127.0.0.1';
+const HOST = '0.0.0.0';
+const ALLOWED_ORIGIN = '*';
+const ALLOWED_METHODS = 'POST, OPTIONS';
+const ALLOWED_HEADERS = 'Content-Type';
+const CORS_MAX_AGE_SECONDS = '600';
 
 function parsePort(argvPort) {
   if (argvPort === undefined) {
@@ -21,10 +25,18 @@ function parsePort(argvPort) {
   return port;
 }
 
-function sendJson(response, statusCode, payload) {
+function sendJson(request, response, statusCode, payload) {
   response.statusCode = statusCode;
+  applyCorsHeaders(response, request);
   response.setHeader('Content-Type', 'application/json; charset=utf-8');
   response.end(JSON.stringify(payload));
+}
+
+function applyCorsHeaders(response, request) {
+  response.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
+  response.setHeader('Access-Control-Allow-Methods', ALLOWED_METHODS);
+  response.setHeader('Access-Control-Allow-Headers', ALLOWED_HEADERS);
+  response.setHeader('Access-Control-Max-Age', CORS_MAX_AGE_SECONDS);
 }
 
 function readBody(request, callback) {
@@ -61,15 +73,23 @@ if (port === null) {
 }
 
 const server = http.createServer((request, response) => {
+  applyCorsHeaders(response, request);
+
+  if (request.method === 'OPTIONS') {
+    response.statusCode = 204;
+    response.end();
+    return;
+  }
+
   if (request.method !== 'POST' || request.url !== '/') {
-    sendJson(response, 404, { error: 'Not found' });
+    sendJson(request, response, 404, { error: 'Not found' });
     return;
   }
 
   readBody(request, (readError, rawBody) => {
     if (readError) {
       console.error('Failed to read request body:', readError.message);
-      sendJson(response, 500, { error: 'Internal server error' });
+      sendJson(request, response, 500, { error: 'Internal server error' });
       return;
     }
 
@@ -77,12 +97,14 @@ const server = http.createServer((request, response) => {
     try {
       payload = JSON.parse(rawBody);
     } catch (error) {
-      sendJson(response, 400, { error: 'Request body must be valid JSON.' });
+      sendJson(request, response, 400, {
+        error: 'Request body must be valid JSON.',
+      });
       return;
     }
 
     if (!isValidPayload(payload)) {
-      sendJson(response, 400, {
+      sendJson(request, response, 400, {
         error: 'Request body must be an object with string key and value fields.',
       });
       return;
