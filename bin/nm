@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+show_help() {
+  cat <<'EOF'
+nm — generate dated filenames
+
+Usage:
+  nm [options] <name> <ext>
+
+Arguments:
+  name            Base filename (required)
+  ext             File extension without dot (required)
+
+Options:
+  -t, --timestamp       Append epoch seconds
+  -w, --word, --words   Append two random words
+  -h, --help            Show this help message
+
+Examples:
+  nm hi txt
+  nm --timestamp hi md
+  nm -w hi txt
+  nm -w -t hi md
+  nm hi -wt txt         (flags can be anywhere, bundled)
+EOF
+}
+
+timestamp=false
+words=false
+positionals=()
+
+# Parse args (supports flags anywhere + bundled short flags)
+for arg in "$@"; do
+  if [[ "$arg" == "--" ]]; then
+    shift
+    break
+  elif [[ "$arg" == --timestamp ]]; then
+    timestamp=true
+  elif [[ "$arg" == --word || "$arg" == --words ]]; then
+    words=true
+  elif [[ "$arg" == --help ]]; then
+    show_help
+    exit 0
+  elif [[ "$arg" =~ ^-[^-]+$ ]]; then
+    # bundled short flags like -wt
+    chars="${arg:1}"
+    for ((i=0; i<${#chars}; i++)); do
+      c="${chars:$i:1}"
+      case "$c" in
+        t) timestamp=true ;;
+        w) words=true ;;
+        h) show_help; exit 0 ;;
+        *)
+          echo "Unknown option: -$c" >&2
+          echo "Try 'nm --help'" >&2
+          exit 1
+          ;;
+      esac
+    done
+  elif [[ "$arg" == -* ]]; then
+    echo "Unknown option: $arg" >&2
+    echo "Try 'nm --help'" >&2
+    exit 1
+  else
+    positionals+=("$arg")
+  fi
+done
+
+if [[ ${#positionals[@]} -ne 2 ]]; then
+  echo "Error: name and ext are required." >&2
+  echo "Try 'nm --help'" >&2
+  exit 1
+fi
+
+name="${positionals[0]}"
+ext="${positionals[1]}"
+
+date_part="$(date +%y%m%d)"
+out="${date_part}-${name}"
+
+if $timestamp; then
+  out="${out}-$(date +%s)"
+fi
+
+if $words; then
+  dict="/usr/share/dict/words"
+  if [[ -f "$dict" ]]; then
+    w1=$(shuf -n 1 "$dict" | tr '[:upper:]' '[:lower:]')
+    w2=$(shuf -n 1 "$dict" | tr '[:upper:]' '[:lower:]')
+  else
+    w1=$(tr -dc 'a-z' </dev/urandom | head -c 6)
+    w2=$(tr -dc 'a-z' </dev/urandom | head -c 6)
+  fi
+  out="${out}-${w1}-${w2}"
+fi
+
+echo "${out}.${ext}"
