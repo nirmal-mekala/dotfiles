@@ -1,3 +1,10 @@
 #!/usr/bin/env bash
 
-nvim  -c "set errorformat=%f" -c "cgetbuffer" -c "bd!" -c "Qft" -
+set -euo pipefail
+
+tmpfile="$(mktemp "${TMPDIR:-/tmp}/nvim-qf.XXXXXX")"
+trap 'rm -f "$tmpfile"' EXIT
+
+cat >"$tmpfile"
+
+nvim -c "set errorformat=%f" -c "cgetbuffer" -c "bd!" -c "Qft" "$tmpfile"
