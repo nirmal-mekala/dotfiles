@@ -68,7 +68,7 @@ gdel () {
   if [[ -z $sel ]]; then
     return 1
   fi
-  print -r -- "$sel" | xargs -r -n1 git branch -d --
+  print -r -- "$sel" | xargs -r -n1 git branch -D --
 }
 
 # Exa Functions
