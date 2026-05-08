@@ -20,5 +20,5 @@ export PATH="$HOME/.dotfiles/bin:$PATH"
 autoload -Uz compinit && compinit # autocomplete
 bindkey -r "^X" # give vim ctrl x
 bindkey -v '^?' backward-delete-char
-export EDITOR="vi"
+export EDITOR="nvim"
 setopt HIST_IGNORE_SPACE
