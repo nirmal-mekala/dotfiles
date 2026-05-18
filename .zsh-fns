@@ -84,9 +84,9 @@ ll () {
 
 xt () {
   if command -v eza > /dev/null 2>&1 ; then
-    eza --long --icons --git --group --tree --git-ignore "$@"
+    eza --long --icons --git --group --tree "$@"
   elif command -v exa > /dev/null 2>&1 ; then
-    exa --long --icons --git --group --tree --git-ignore "$@"
+    exa --long --icons --git --group --tree "$@"
   else
     echo "Exa is not installed!"
   fi
