@@ -7,11 +7,11 @@ show_help() {
 nm — generate dated filenames
 
 Usage:
-  nm [options] <name> <ext>
+  nm [options] <name> [ext]
 
 Arguments:
   name            Base filename (required)
-  ext             File extension without dot (required)
+  ext             File extension without dot
 
 Options:
   -t, --timestamp       Append epoch seconds
@@ -20,6 +20,7 @@ Options:
 
 Examples:
   nm hi txt
+  nm dir
   nm --timestamp hi md
   nm -w hi txt
   nm -w -t hi md
@@ -68,14 +69,14 @@ for arg in "$@"; do
   fi
 done
 
-if [[ ${#positionals[@]} -ne 2 ]]; then
-  echo "Error: name and ext are required." >&2
+if [[ ${#positionals[@]} -lt 1 || ${#positionals[@]} -gt 2 ]]; then
+  echo "Error: name is required and ext is optional." >&2
   echo "Try 'nm --help'" >&2
   exit 1
 fi
 
 name="${positionals[0]}"
-ext="${positionals[1]}"
+ext="${positionals[1]:-}"
 
 date_part="$(date +%y%m%d)"
 out="${date_part}-${name}"
@@ -96,4 +97,8 @@ if $words; then
   out="${out}-${w1}-${w2}"
 fi
 
-echo "${out}.${ext}"
+if [[ -n "$ext" ]]; then
+  echo "${out}.${ext}"
+else
+  echo "$out"
+fi
