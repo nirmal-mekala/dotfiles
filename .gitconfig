@@ -18,3 +18,7 @@
 
 [includeIf "gitdir:~/ghq/gitlab.tis.trane.com/"]
   path = ~/ghq/gitlab.tis.trane.com/.gitconfig
+[diff]
+	tool = nvimdiff
+[difftool]
+	prompt = false
