@@ -1781,9 +1781,11 @@ function findBootstrapRepositoryRoot(cwd) {
 
 // src/commands/clone.ts
 import { chmodSync, existsSync as existsSync3, mkdirSync as mkdirSync2, writeFileSync } from "node:fs";
-import { dirname as dirname3 } from "node:path";
+import { dirname as dirname4 } from "node:path";
 
 // src/lib/git.ts
+import { realpathSync } from "node:fs";
+import { basename as basename4, dirname as dirname2, join as join2, resolve as resolve2 } from "node:path";
 async function runGit(args, options) {
   try {
     return await runProcess("git", args, { cwd: options.cwd });
@@ -1813,6 +1815,26 @@ async function localBranchExists(repositoryRoot, branchName, runner = runGit) {
   }
   throw new Error(result.stderr.trim() || "git branch lookup failed");
 }
+async function gitWorktreePathExists(repositoryRoot, worktreeDirectory, runner = runGit) {
+  const output = await requireGit(["worktree", "list", "--porcelain"], {
+    cwd: repositoryRoot
+  }, runner);
+  const normalizedWorktreeDirectory = normalizePath(worktreeDirectory);
+  return output.split(`
+`).filter((line) => line.startsWith("worktree ")).some((line) => normalizePath(line.slice("worktree ".length)) === normalizedWorktreeDirectory);
+}
+function normalizePath(path) {
+  const resolvedPath = resolve2(path);
+  try {
+    return realpathSync.native(resolvedPath);
+  } catch {
+    try {
+      return join2(realpathSync.native(dirname2(resolvedPath)), basename4(resolvedPath));
+    } catch {
+      return resolvedPath.replace(/\/+$/, "");
+    }
+  }
+}
 
 // src/lib/symlink.ts
 import {
@@ -1823,11 +1845,11 @@ import {
   readlinkSync,
   symlinkSync
 } from "node:fs";
-import { dirname as dirname2, join as join2, relative as relative2, resolve as resolve2 } from "node:path";
+import { dirname as dirname3, join as join3, relative as relative2, resolve as resolve3 } from "node:path";
 function createSymlinkPlan(symlinksDirectory, worktreePath2) {
   return listFiles(symlinksDirectory).map((sourcePath) => ({
     sourcePath,
-    destinationPath: join2(worktreePath2, relative2(symlinksDirectory, sourcePath))
+    destinationPath: join3(worktreePath2, relative2(symlinksDirectory, sourcePath))
   }));
 }
 function applySymlinks(symlinksDirectory, worktreePath2) {
@@ -1837,7 +1859,7 @@ function applySymlinks(symlinksDirectory, worktreePath2) {
       validateExistingSymlink(destinationPath, sourcePath);
       continue;
     }
-    mkdirSync(dirname2(destinationPath), { recursive: true });
+    mkdirSync(dirname3(destinationPath), { recursive: true });
     symlinkSync(sourcePath, destinationPath);
     created.push(destinationPath);
   }
@@ -1846,7 +1868,7 @@ function applySymlinks(symlinksDirectory, worktreePath2) {
 function listFiles(directory) {
   const files = [];
   for (const entry of readdirSync2(directory, { withFileTypes: true })) {
-    const entryPath = join2(directory, entry.name);
+    const entryPath = join3(directory, entry.name);
     if (entry.isDirectory()) {
       files.push(...listFiles(entryPath));
       continue;
@@ -1874,8 +1896,8 @@ function validateExistingSymlink(destinationPath, expectedSourcePath) {
     throw new Error(`destination is a real file: ${destinationPath}`);
   }
   const linkTarget = readlinkSync(destinationPath);
-  const actualTarget = resolve2(dirname2(destinationPath), linkTarget);
-  const expectedTarget = resolve2(expectedSourcePath);
+  const actualTarget = resolve3(dirname3(destinationPath), linkTarget);
+  const expectedTarget = resolve3(expectedSourcePath);
   if (actualTarget !== expectedTarget) {
     if (!existsSync2(actualTarget)) {
       throw new Error(`destination is a broken symlink: ${destinationPath}`);
@@ -1885,6 +1907,8 @@ function validateExistingSymlink(destinationPath, expectedSourcePath) {
 }
 
 // src/commands/clone.ts
+var initialBootstrapScript = `#!/usr/bin/env bash
+`;
 async function runClone(args, options = {}) {
   try {
     const cloneArgs = parseCloneArgs(args);
@@ -1896,13 +1920,13 @@ async function runClone(args, options = {}) {
     }
     const log = [];
     log.push(formatLog("info", `cloning ${remote.original}`));
-    mkdirSync2(dirname3(repositoryRoot), { recursive: true });
+    mkdirSync2(dirname4(repositoryRoot), { recursive: true });
     mkdirSync2(repositoryRoot);
     await requireGit(["clone", "--bare", remote.original, paths.gitDirectory], {
       cwd: repositoryRoot
     });
     mkdirSync2(paths.symlinksDirectory);
-    writeFileSync(paths.bootstrapScript, "");
+    writeFileSync(paths.bootstrapScript, initialBootstrapScript);
     chmodSync(paths.bootstrapScript, 493);
     const headBranch = (await requireGit(["symbolic-ref", "--short", "HEAD"], {
       cwd: paths.gitDirectory
@@ -1997,6 +2021,41 @@ function failParse(message) {
   throw new Error(message);
 }
 
+// src/commands/remove.ts
+import { rmSync } from "node:fs";
+import { basename as basename5 } from "node:path";
+async function runRemove(args, options = {}) {
+  try {
+    const removeArgs = parseWorktreeArgs("remove", args);
+    const cwd = options.cwd ?? process.cwd();
+    const currentWorktree = findOrchardWorktree(cwd);
+    const repositoryRoot = currentWorktree?.repositoryRoot ?? findOrchardRepositoryRoot(cwd);
+    if (!repositoryRoot) {
+      return fail("orchard remove must be run from inside an orchard repository");
+    }
+    const targetWorktreePath = await selectWorktreePath({
+      commandName: "remove",
+      currentWorktreePath: currentWorktree?.worktreePath,
+      interactive: options.interactive ?? Boolean(process.stdin.isTTY && process.stdout.isTTY),
+      requestedName: removeArgs.worktreeName,
+      worktrees: listOrchardWorktrees(repositoryRoot)
+    });
+    const paths = orchardPaths(repositoryRoot);
+    await requireGit([
+      "--git-dir",
+      paths.gitDirectory,
+      "worktree",
+      "remove",
+      "--force",
+      targetWorktreePath
+    ], { cwd: repositoryRoot });
+    rmSync(targetWorktreePath, { recursive: true, force: true });
+    return ok(formatLog("success", `removed worktree ${basename5(targetWorktreePath)}`));
+  } catch (error) {
+    return fail(error instanceof Error ? error.message : "remove failed");
+  }
+}
+
 // src/commands/symlink.ts
 async function runSymlink(args, options = {}) {
   try {
@@ -2030,8 +2089,7 @@ async function runSymlink(args, options = {}) {
 }
 
 // src/commands/tree.ts
-import { basename as basename4 } from "node:path";
-import { createInterface } from "node:readline/promises";
+import { basename as basename6 } from "node:path";
 async function runTree(args, options = {}) {
   try {
     const treeArgs = parseTreeArgs(args);
@@ -2040,29 +2098,27 @@ async function runTree(args, options = {}) {
     if (!currentWorktree) {
       return fail("orchard tree must be run from inside an orchard worktree");
     }
-    const branchName = treeArgs.name ?? await promptForBranchName();
     const repositoryRoot = currentWorktree.repositoryRoot;
     const paths = orchardPaths(repositoryRoot);
-    const repoName = basename4(repositoryRoot);
+    const repoName = basename6(repositoryRoot);
+    const branchName = branchNameForMode(treeArgs.mode);
     const targetWorktreeName = worktreeName(repoName, branchName);
     const targetWorktreePath = worktreePath(repositoryRoot, repoName, branchName);
-    if (await localBranchExists(paths.gitDirectory, branchName)) {
-      return fail(`local branch already exists: ${branchName}`);
-    }
     if (worktreeExists(repositoryRoot, repoName, branchName)) {
       return fail(`worktree already exists: ${targetWorktreePath}`);
     }
-    const sourceRef = treeArgs.remoteBranch ? await fetchRemoteBranch(paths.gitDirectory, treeArgs.remoteBranch) : await currentBranchName(currentWorktree.worktreePath);
-    await requireGit([
-      "--git-dir",
-      paths.gitDirectory,
-      "worktree",
-      "add",
-      "-b",
+    if (await gitWorktreePathExists(paths.gitDirectory, targetWorktreePath)) {
+      return fail(`worktree still registered in git: ${targetWorktreePath}. Run git -C ${paths.gitDirectory} worktree prune, or remove it with git -C ${paths.gitDirectory} worktree remove ${targetWorktreePath}`);
+    }
+    const gitArgs = await worktreeAddArgs({
       branchName,
-      targetWorktreePath,
-      sourceRef
-    ], { cwd: repositoryRoot });
+      currentWorktreePath: currentWorktree.worktreePath,
+      gitDirectory: paths.gitDirectory,
+      mode: treeArgs.mode,
+      sourceRef: treeArgs.from,
+      targetWorktreePath
+    });
+    await requireGit(gitArgs, { cwd: repositoryRoot });
     const log = [];
     const symlinkResult = applySymlinks(paths.symlinksDirectory, targetWorktreePath);
     for (const createdPath of symlinkResult.created) {
@@ -2078,37 +2134,119 @@ async function runTree(args, options = {}) {
     return fail(error instanceof Error ? error.message : "tree failed");
   }
 }
-function parseTreeArgs(args) {
-  let name;
-  let remoteBranch;
-  let bootstrap = true;
-  for (let index = 0;index < args.length; index += 1) {
-    const arg = args[index];
-    if (arg === "--name") {
-      const value = args[index + 1];
-      if (!value) {
-        throw new Error("--name requires a branch name");
-      }
-      name = value;
-      index += 1;
-      continue;
+async function worktreeAddArgs(options) {
+  if (options.mode.type === "new") {
+    if (await localBranchExists(options.gitDirectory, options.branchName)) {
+      throw new Error(`local branch already exists: ${options.branchName}`);
     }
-    if (arg === "--remote-branch") {
-      const value = args[index + 1];
-      if (!value) {
-        throw new Error("--remote-branch requires a branch name");
-      }
-      remoteBranch = value;
-      index += 1;
-      continue;
-    }
-    if (arg === "--no-bootstrap") {
-      bootstrap = false;
-      continue;
-    }
-    throw new Error(`unknown tree flag: ${arg}`);
+    return [
+      "--git-dir",
+      options.gitDirectory,
+      "worktree",
+      "add",
+      "-b",
+      options.branchName,
+      options.targetWorktreePath,
+      options.sourceRef ?? await currentBranchName(options.currentWorktreePath)
+    ];
   }
-  return { name, remoteBranch, bootstrap };
+  if (options.mode.type === "branch") {
+    if (!await localBranchExists(options.gitDirectory, options.branchName)) {
+      throw new Error(`local branch does not exist: ${options.branchName}`);
+    }
+    return [
+      "--git-dir",
+      options.gitDirectory,
+      "worktree",
+      "add",
+      options.targetWorktreePath,
+      options.branchName
+    ];
+  }
+  if (await localBranchExists(options.gitDirectory, options.branchName)) {
+    throw new Error(`local branch already exists: ${options.branchName}. Use orchard tree --branch ${options.branchName}`);
+  }
+  return [
+    "--git-dir",
+    options.gitDirectory,
+    "worktree",
+    "add",
+    "-b",
+    options.branchName,
+    options.targetWorktreePath,
+    await fetchRemoteBranch(options.gitDirectory, options.mode.remoteBranch)
+  ];
+}
+function branchNameForMode(mode) {
+  if (mode.type === "remote") {
+    return parseRemoteBranch(mode.remoteBranch).branchName;
+  }
+  return mode.branchName;
+}
+function parseTreeArgs(args) {
+  const parsed = { bootstrap: true };
+  for (let index = 0;index < args.length; index += 1) {
+    index = parseTreeArg(args, index, parsed);
+  }
+  if (!parsed.mode) {
+    throw new Error(requiredTreeModeMessage());
+  }
+  if (parsed.from && parsed.mode.type !== "new") {
+    throw new Error("--from can only be used with --new");
+  }
+  return {
+    mode: parsed.mode,
+    from: parsed.from,
+    bootstrap: parsed.bootstrap
+  };
+}
+function parseTreeArg(args, index, parsed) {
+  const arg = args[index];
+  if (arg === "--no-bootstrap") {
+    parsed.bootstrap = false;
+    return index;
+  }
+  if (arg === "--new") {
+    parsed.mode = setTreeMode(parsed.mode, {
+      type: "new",
+      branchName: requiredArgValue(args, index, "--new", "a branch name")
+    });
+    return index + 1;
+  }
+  if (arg === "--branch") {
+    parsed.mode = setTreeMode(parsed.mode, {
+      type: "branch",
+      branchName: requiredArgValue(args, index, "--branch", "a branch name")
+    });
+    return index + 1;
+  }
+  if (arg === "--remote") {
+    const remoteBranch = requiredArgValue(args, index, "--remote", "a remote branch");
+    parseRemoteBranch(remoteBranch);
+    parsed.mode = setTreeMode(parsed.mode, { type: "remote", remoteBranch });
+    return index + 1;
+  }
+  if (arg === "--from") {
+    parsed.from = requiredArgValue(args, index, "--from", "a source ref");
+    return index + 1;
+  }
+  throw new Error(`unknown tree flag: ${arg}`);
+}
+function requiredArgValue(args, index, flag, description) {
+  const value = args[index + 1];
+  if (!value) {
+    throw new Error(`${flag} requires ${description}`);
+  }
+  return value;
+}
+function setTreeMode(currentMode, nextMode) {
+  if (currentMode) {
+    throw new Error(requiredTreeModeMessage());
+  }
+  return nextMode;
+}
+function requiredTreeModeMessage() {
+  return "orchard tree requires exactly one of --new <branch>, --branch <branch>, or --remote <remote>/<branch>";
 }
 async function currentBranchName(worktreePath2) {
   const branchName = (await requireGit(["branch", "--show-current"], { cwd: worktreePath2 })).trim();
@@ -2117,36 +2255,23 @@ async function currentBranchName(worktreePath2) {
   }
   return branchName;
 }
-async function promptForBranchName() {
-  if (!process.stdin.isTTY || !process.stdout.isTTY) {
-    throw new Error("orchard tree requires --name <branch>");
-  }
-  const prompt = createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-  try {
-    const branchName = (await prompt.question("Branch/worktree name: ")).trim();
-    if (branchName.length === 0) {
-      throw new Error("branch name cannot be empty");
-    }
-    return branchName;
-  } finally {
-    prompt.close();
-  }
-}
 async function fetchRemoteBranch(gitDirectory, remoteBranch) {
-  const slashIndex = remoteBranch.indexOf("/");
-  if (slashIndex < 1 || slashIndex === remoteBranch.length - 1) {
-    return remoteBranch;
-  }
-  const remoteName = remoteBranch.slice(0, slashIndex);
-  const branchName = remoteBranch.slice(slashIndex + 1);
+  const { branchName, remoteName } = parseRemoteBranch(remoteBranch);
   const remoteRef = `refs/remotes/${remoteName}/${branchName}`;
   await requireGit(["fetch", remoteName, `${branchName}:${remoteRef}`], {
     cwd: gitDirectory
   });
   return remoteRef;
+}
+function parseRemoteBranch(remoteBranch) {
+  const slashIndex = remoteBranch.indexOf("/");
+  if (slashIndex < 1 || slashIndex === remoteBranch.length - 1) {
+    throw new Error("--remote requires a remote branch like origin/main");
+  }
+  return {
+    remoteName: remoteBranch.slice(0, slashIndex),
+    branchName: remoteBranch.slice(slashIndex + 1)
+  };
 }
 
 // src/commands/registry.ts
@@ -2154,6 +2279,7 @@ var commandNames = [
   "clone",
   "list",
   "tree",
+  "remove",
   "symlink",
   "bootstrap"
 ];
@@ -2180,11 +2306,21 @@ var commands = [
   {
     name: "tree",
     summary: "Create a new worktree in the current orchard repository.",
-    usage: "orchard tree --name <name> [--remote-branch <branch>] [--no-bootstrap]",
+    usage: "orchard tree (--new <branch> [--from <ref>] | --branch <branch> | --remote <remote>/<branch>) [--no-bootstrap]",
     details: [
-      "--name <name>             Local branch and worktree name to create.",
-      "--remote-branch <branch>  Existing remote branch to base the worktree on.",
-      "--no-bootstrap           Skip running wt_bootstrap.sh."
+      "--new <branch>              Create a new local branch and worktree.",
+      "--from <ref>                Source ref for --new. Defaults to the current branch.",
+      "--branch <branch>           Create a worktree for an existing local branch.",
+      "--remote <remote>/<branch>  Create a local branch and worktree from a remote branch.",
+      "--no-bootstrap             Skip running wt_bootstrap.sh."
+    ]
+  },
+  {
+    name: "remove",
+    summary: "Remove an orchard worktree.",
+    usage: "orchard remove [--worktree <name>]",
+    details: [
+      "--worktree <name>  Worktree directory name to remove. The branch is left intact."
     ]
   },
   {
@@ -2258,6 +2394,9 @@ function dispatchCommand(commandName, args, options = {}) {
   if (commandName === "tree") {
     return runTree(args, options);
   }
+  if (commandName === "remove") {
+    return runRemove(args, options);
+  }
   if (commandName === "symlink") {
     return runSymlink(args, options);
   }
@@ -2286,11 +2425,43 @@ _arguments '1:command:(${completionWords})'
   }
   return fail("usage: orchard completion <bash|zsh>");
 }
+// package.json
+var package_default = {
+  name: "orchard",
+  version: "0.1.2",
+  description: "A CLI for managing opinionated git worktree layouts.",
+  type: "module",
+  bin: {
+    orchard: "./dist/orchard"
+  },
+  scripts: {
+    test: "bun test",
+    lint: "biome check .",
+    format: "biome format --write .",
+    build: "bun build src/main.ts --target=node --outfile=dist/orchard --banner='#!/usr/bin/env node' && chmod +x dist/orchard",
+    fallow: "bunx fallow",
+    check: "bun run lint && bun test && bun run build && bun run fallow"
+  },
+  dependencies: {
+    "@clack/prompts": "latest",
+    bombshell: "latest",
+    chalk: "latest"
+  },
+  devDependencies: {
+    "@biomejs/biome": "latest",
+    "@types/bun": "latest",
+    fallow: "latest",
+    typescript: "latest"
+  },
+  engines: {
+    bun: ">=1.3.14",
+    node: ">=22"
+  }
+};
 
 // src/lib/version.ts
-import { readFileSync } from "node:fs";
-function resolveVersion(packageJsonPath = "package.json") {
-  const metadata = JSON.parse(readFileSync(packageJsonPath, "utf8"));
+function resolveVersion() {
+  const metadata = package_default;
   if (typeof metadata.version !== "string" || metadata.version.length === 0) {
     throw new Error("package.json must define a non-empty version");
   }
@@ -2304,7 +2475,7 @@ async function run(args, options = {}) {
     return ok(renderRootHelp());
   }
   if (firstArg === "--version" || firstArg === "-v") {
-    return ok(`${resolveVersion(options.packageJsonPath)}
+    return ok(`${resolveVersion()}
 `);
   }
   if (firstArg === "completion") {
