@@ -6,7 +6,8 @@ auto_add_commit_push () {
     git add -A && git commit -m "pushed via script $date_and_time" && git push
   else
     echo "What’s the matter with you?!"
-  fi }
+  fi
+}
 
 # Check if command is installed
 check_command() {
@@ -27,6 +28,19 @@ fhq () {
   cd $(fzf_git_dir)
 }
 
+# git log + diff helpers
+
+pick_commit () {
+  git log --oneline | gum choose | awk '{print $1}'
+}
+
+gdf () {
+  git diff $(pick_commit)
+}
+
+gdt () {
+  git difftool $(pick_commit)
+}
 
 # Change directory to the root of the git repo
 gr () {
@@ -92,6 +106,12 @@ xt () {
   fi
 }
 
+
+### orchard
+
+fzf_orchard_dir() {
+  orchard list | fzf
+}
 
 ### ghq
 
@@ -308,6 +328,13 @@ mxq() {
   local git_dir=$(fzf_git_dir)
   if [[ -n "$git_dir" ]]; then
     mx "$git_dir"
+  fi
+}
+
+mxo() {
+  local orchard_dir=$(fzf_orchard_dir)
+  if [[ -n "$orchard_dir" ]]; then
+    mx "$orchard_dir"
   fi
 }
 
