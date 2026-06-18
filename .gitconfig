@@ -9,15 +9,16 @@
 	default = current
 [pull]
   rebase = false
-
 [includeIf "gitdir:~/code/clockwork/bitbucket/"]
   path = ~/ghq/bitbucket.org/clockworkers/.gitconfig
-
 [includeIf "gitdir:~/ghq/bitbucket.org/clockworkers/"]
   path = ~/ghq/bitbucket.org/clockworkers/.gitconfig
-
 [includeIf "gitdir:~/ghq/gitlab.tis.trane.com/"]
   path = ~/ghq/gitlab.tis.trane.com/.gitconfig
+[includeIf "gitdir:~/projects/gitlab.tis.trane.com_denali_tranecloud/"]
+  path = ~/projects/gitlab.tis.trane.com_denali_tranecloud/.gitconfig
+[includeIf "gitdir:~/projects/bitbucket.org_clockworkers/"]
+  path = ~/projects/bitbucket.org_clockworkers/.gitconfig
 [diff]
 	tool = nvimdiff
 [difftool]
