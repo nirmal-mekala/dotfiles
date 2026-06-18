@@ -21,4 +21,6 @@
 [diff]
 	tool = nvimdiff
 [difftool]
-	prompt = false
+  prompt = false
+[difftool "nvimdiff"]
+  cmd = "nvim -d -c 'wincmd K' \"$LOCAL\" \"$REMOTE\""
