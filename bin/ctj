@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+"""
+Convert CSV to JSON/JSONL format.
+Works on OpenBSD, Linux, and macOS with minimal dependencies.
+"""
+
+import argparse
+import csv
+import json
+import sys
+from io import StringIO
+
+
+def csv_to_json(rows):
+    """Convert list of dicts (from csv.DictReader) to JSON array string."""
+    return json.dumps(rows, indent=2, ensure_ascii=False)
+
+
+def csv_to_jsonl(rows):
+    """Convert list of dicts (from csv.DictReader) to JSONL string."""
+    output = StringIO()
+    for row in rows:
+        output.write(json.dumps(row, ensure_ascii=False) + '\n')
+    return output.getvalue()
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='Convert CSV input to JSON or JSONL output.'
+    )
+    parser.add_argument(
+        'input_file',
+        nargs='?',
+        type=str,
+        default='-',
+        help='Path to CSV file (default: read from stdin)'
+    )
+    parser.add_argument(
+        '--json',
+        action='store_true',
+        dest='output_json',
+        help='Output as JSON array (default if no format specified)'
+    )
+    parser.add_argument(
+        '--jsonl',
+        action='store_true',
+        dest='output_jsonl',
+        help='Output as JSONL (one JSON object per line)'
+    )
+    
+    args = parser.parse_args()
+    
+    # Default to JSON if no format specified
+    if not args.output_jsonl:
+        args.output_json = True
+    
+    # Read CSV
+    if args.input_file == '-':
+        input_str = sys.stdin.read()
+        csv_reader = csv.DictReader(StringIO(input_str))
+    else:
+        try:
+            with open(args.input_file, 'r', encoding='utf-8') as f:
+                csv_reader = csv.DictReader(f)
+        except FileNotFoundError:
+            print(f"Error: File not found: {args.input_file}", file=sys.stderr)
+            sys.exit(1)
+        except PermissionError:
+            print(f"Error: Permission denied: {args.input_file}", file=sys.stderr)
+            sys.exit(1)
+    
+    # Convert to list of dicts
+    rows = list(csv_reader)
+    
+    # Output
+    if args.output_json:
+        print(csv_to_json(rows))
+    elif args.output_jsonl:
+        sys.stdout.write(csv_to_jsonl(rows))
+
+
+if __name__ == '__main__':
+    main()
