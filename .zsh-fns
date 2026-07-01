@@ -34,6 +34,11 @@ pick_commit () {
   git log --oneline | gum choose | awk '{print $1}'
 }
 
+gut () {
+  # git untracked
+  git ls-files --others --exclude-standard
+}
+
 gdf () {
   git diff $(pick_commit)
 }
