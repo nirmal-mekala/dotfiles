@@ -34,6 +34,10 @@ pick_commit () {
   git log --oneline | gum choose | awk '{print $1}'
 }
 
+gutt () {
+  gut | xargs bat
+}
+
 gut () {
   # git untracked
   git ls-files --others --exclude-standard
