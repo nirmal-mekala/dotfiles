@@ -47,6 +47,10 @@ gdf () {
   git diff $(pick_commit)
 }
 
+gdl () {
+  git diff --name-only $(pick_commit)
+}
+
 gdt () {
   git difftool $(pick_commit)
 }
