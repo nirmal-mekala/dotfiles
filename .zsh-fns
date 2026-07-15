@@ -47,6 +47,11 @@ gdf () {
   git diff $(pick_commit)
 }
 
+gdlv () {
+  files=$(gdl)
+  printf '%s\n' "$files" | fzf --multi | nvim-qf
+}
+
 gdl () {
   git diff --name-only $(pick_commit)
 }
