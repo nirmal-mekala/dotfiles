@@ -484,6 +484,7 @@ var colors = {
   green: "\x1B[32m",
   blue: "\x1B[34m",
   gray: "\x1B[90m",
+  white: "\x1B[97m",
   reset: "\x1B[0m"
 };
 var statusStyles = {
@@ -764,7 +765,7 @@ async function waitForTuiInput(onMove, onJump, onToggleOkVisibility, onRefresh, 
           onToggleOkVisibility();
           continue;
         }
-        if (key === "x") {
+        if (key === "c") {
           pendingG = false;
           await runAction(onComplete);
           continue;
@@ -878,11 +879,16 @@ function formatIsoDateTimesInText(text, userTimezone = getUserTimezone()) {
 
 // src/render.ts
 function buildHelpText(selectedSignal, hideOkSignals) {
-  const items = ["q to quit", `o to ${hideOkSignals ? "show" : "hide"} ok`];
+  const itemColor = colors.gray;
+  const keyColor = colors.white;
+  const items = [
+    `${keyColor}q${itemColor}uit`,
+    hideOkSignals ? `show ${keyColor}o${itemColor}k` : `hide ${keyColor}o${itemColor}k`
+  ];
   if (selectedSignal) {
-    items.push("r to refresh");
+    items.push(`${keyColor}r${itemColor}efresh`);
     if (selectedSignal.source.managedTask) {
-      items.push("x to complete");
+      items.push(`${keyColor}c${itemColor}omplete`);
     }
   }
   return items.join(HELP_TEXT_SEPARATOR);
@@ -986,8 +992,9 @@ function renderTuiBuffer(signals, terminalWidth = 80, terminalHeight = 24, userT
   const helpText = buildHelpText(selectedSignal, options.hideOkSignals ?? false);
   const updatedText = options.lastFullQueryAt ? formatLastQueryUpdatedAt(options.lastFullQueryAt, options.now) : "";
   const signalContentWidth = Math.max(0, ...contentRows.filter((row) => row.type === "signal").map((row) => visibleLength(row.text)));
-  const footerContentWidth = Math.max(helpText.length + (updatedText ? 1 + updatedText.length : 0), signalContentWidth > 0 ? signalContentWidth - FOOTER_INDENT : terminalWidth);
-  const footerText = updatedText ? `${helpText}${" ".repeat(Math.max(1, footerContentWidth - helpText.length - updatedText.length))}${updatedText}` : helpText;
+  const helpTextWidth = visibleLength(helpText);
+  const footerContentWidth = Math.max(helpTextWidth + (updatedText ? 1 + updatedText.length : 0), signalContentWidth > 0 ? signalContentWidth - FOOTER_INDENT : terminalWidth);
+  const footerText = updatedText ? `${helpText}${" ".repeat(Math.max(1, footerContentWidth - helpTextWidth - updatedText.length))}${updatedText}` : helpText;
   const footer = `${" ".repeat(FOOTER_INDENT)}${colors.gray}${footerText}${colors.reset}`;
   if (terminalHeight <= 1) {
     return "";
