@@ -506,7 +506,6 @@ var CARET = "❯";
 var LOADING_SPINNER_FRAMES = ["·", "✻", "✽", "✶", "✳", "✢"];
 var LOADING_SPINNER_INTERVAL_MS = 120;
 var LOADING_MIN_VISIBLE_MS = 250;
-var UPDATED_TIMESTAMP_INTERVAL_MS = 30 * 1000;
 var FULL_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 var ansi = {
   enterAlternateScreen: "\x1B[?1049h",
@@ -856,20 +855,6 @@ function formatDateTime(dateTime, userTimezone = getUserTimezone()) {
 function formatSignalUpdatedAt(signalUpdatedAt, userTimezone = getUserTimezone()) {
   return `${WATCH_TEXT_SYMBOL}${formatDateTime(signalUpdatedAt, userTimezone)}`;
 }
-function formatLastQueryUpdatedAt(lastFullQueryAt, now = new Date) {
-  const elapsedMinutes = Math.max(0, Math.floor((now.getTime() - lastFullQueryAt.getTime()) / 60000));
-  if (elapsedMinutes < 1) {
-    return "updated just now";
-  }
-  if (elapsedMinutes < 60) {
-    return `updated ${elapsedMinutes}m ago`;
-  }
-  const elapsedHours = Math.floor(elapsedMinutes / 60);
-  if (elapsedHours < 24) {
-    return `updated ${elapsedHours}h ago`;
-  }
-  return `updated ${Math.floor(elapsedHours / 24)}d ago`;
-}
 function formatIsoDateTimesInText(text, userTimezone = getUserTimezone()) {
   return text.replace(ISO_DATE_TIME_PATTERN, (dateTime) => {
     const formattedDateTime = formatDateTime(dateTime, userTimezone);
@@ -892,9 +877,6 @@ function buildHelpText(selectedSignal, hideOkSignals) {
     }
   }
   return items.join(HELP_TEXT_SEPARATOR);
-}
-function visibleLength(value) {
-  return value.replace(/\x1b\[[0-9;]*m/g, "").length;
 }
 function buildSignalRows(signals, terminalWidth = 80, userTimezone = getUserTimezone(), options = {}) {
   const markerWidth = 2;
@@ -990,12 +972,7 @@ function renderTuiBuffer(signals, terminalWidth = 80, terminalHeight = 24, userT
   });
   const selectedSignal = options.selectedSignalIndex === null || options.selectedSignalIndex === undefined || !contentRows.some((row) => row.signalIndex === options.selectedSignalIndex) ? null : signals[options.selectedSignalIndex] ?? null;
   const helpText = buildHelpText(selectedSignal, options.hideOkSignals ?? false);
-  const updatedText = options.lastFullQueryAt ? formatLastQueryUpdatedAt(options.lastFullQueryAt, options.now) : "";
-  const signalContentWidth = Math.max(0, ...contentRows.filter((row) => row.type === "signal").map((row) => visibleLength(row.text)));
-  const helpTextWidth = visibleLength(helpText);
-  const footerContentWidth = Math.max(helpTextWidth + (updatedText ? 1 + updatedText.length : 0), signalContentWidth > 0 ? signalContentWidth - FOOTER_INDENT : terminalWidth);
-  const footerText = updatedText ? `${helpText}${" ".repeat(Math.max(1, footerContentWidth - helpTextWidth - updatedText.length))}${updatedText}` : helpText;
-  const footer = `${" ".repeat(FOOTER_INDENT)}${colors.gray}${footerText}${colors.reset}`;
+  const footer = `${" ".repeat(FOOTER_INDENT)}${colors.gray}${helpText}${colors.reset}`;
   if (terminalHeight <= 1) {
     return "";
   }
@@ -1052,10 +1029,9 @@ function sleep(milliseconds) {
     setTimeout(resolve, milliseconds);
   });
 }
-function replaceSignals(signals, state, nextSignals, queriedAt) {
+function replaceSignals(signals, state, nextSignals) {
   const selectedSlug = state.selectedSignalIndex === null ? null : signals[state.selectedSignalIndex]?.source.slug ?? null;
   signals.splice(0, signals.length, ...nextSignals);
-  state.lastFullQueryAt = queriedAt;
   state.loadingSignalIndexes.clear();
   if (selectedSlug === null) {
     state.selectedSignalIndex = null;
@@ -1082,13 +1058,11 @@ async function runTui(signals) {
     scrollOffset: 0,
     hideOkSignals: false,
     loadingSignalIndexes: new Set,
-    loadingFrame: 0,
-    lastFullQueryAt: new Date
+    loadingFrame: 0
   };
   const render = createTuiRenderer(signals, state);
   let loadingInterval = null;
   let fullRefreshInterval = null;
-  let updatedTimestampInterval = null;
   let isRowActionRunning = false;
   let isFullRefreshRunning = false;
   const rerender = () => render();
@@ -1169,7 +1143,6 @@ async function runTui(signals) {
     const loadingStartedAtMs = performance.now();
     const loadingSignalIndexes = signals.map((_, signalIndex) => signalIndex);
     let nextSignals = null;
-    let queriedAt = null;
     isFullRefreshRunning = true;
     for (const signalIndex of loadingSignalIndexes) {
       state.loadingSignalIndexes.add(signalIndex);
@@ -1179,13 +1152,12 @@ async function runTui(signals) {
     try {
       const response = await fetchSignals();
       nextSignals = response.data;
-      queriedAt = new Date;
     } catch {
       nextSignals = null;
     } finally {
       await waitForMinimumLoadingDuration(loadingStartedAtMs);
-      if (nextSignals && queriedAt) {
-        replaceSignals(signals, state, nextSignals, queriedAt);
+      if (nextSignals) {
+        replaceSignals(signals, state, nextSignals);
       } else {
         for (const signalIndex of loadingSignalIndexes) {
           state.loadingSignalIndexes.delete(signalIndex);
@@ -1229,16 +1201,10 @@ async function runTui(signals) {
     fullRefreshInterval = setInterval(() => {
       refreshAllSignals();
     }, FULL_REFRESH_INTERVAL_MS);
-    updatedTimestampInterval = setInterval(() => {
-      rerender();
-    }, UPDATED_TIMESTAMP_INTERVAL_MS);
     exitReason = await waitForTuiInput(moveAndRender, jumpAndRender, toggleOkVisibilityAndRender, refreshSelectedSignal, completeSelectedTask);
   } finally {
     if (fullRefreshInterval !== null) {
       clearInterval(fullRefreshInterval);
-    }
-    if (updatedTimestampInterval !== null) {
-      clearInterval(updatedTimestampInterval);
     }
     if (loadingInterval !== null) {
       clearInterval(loadingInterval);
