@@ -877,8 +877,8 @@ function formatIsoDateTimesInText(text, userTimezone = getUserTimezone()) {
 }
 
 // src/render.ts
-function buildHelpText(selectedSignal) {
-  const items = ["q to quit", "o to show/hide ok"];
+function buildHelpText(selectedSignal, hideOkSignals) {
+  const items = ["q to quit", `o to ${hideOkSignals ? "show" : "hide"} ok`];
   if (selectedSignal) {
     items.push("r to refresh");
     if (selectedSignal.source.managedTask) {
@@ -983,7 +983,7 @@ function renderTuiBuffer(signals, terminalWidth = 80, terminalHeight = 24, userT
     loadingFrame: options.loadingFrame
   });
   const selectedSignal = options.selectedSignalIndex === null || options.selectedSignalIndex === undefined || !contentRows.some((row) => row.signalIndex === options.selectedSignalIndex) ? null : signals[options.selectedSignalIndex] ?? null;
-  const helpText = buildHelpText(selectedSignal);
+  const helpText = buildHelpText(selectedSignal, options.hideOkSignals ?? false);
   const updatedText = options.lastFullQueryAt ? formatLastQueryUpdatedAt(options.lastFullQueryAt, options.now) : "";
   const signalContentWidth = Math.max(0, ...contentRows.filter((row) => row.type === "signal").map((row) => visibleLength(row.text)));
   const footerContentWidth = Math.max(helpText.length + (updatedText ? 1 + updatedText.length : 0), signalContentWidth > 0 ? signalContentWidth - FOOTER_INDENT : terminalWidth);
