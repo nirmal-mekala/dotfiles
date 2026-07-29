@@ -237,12 +237,24 @@ parse_time_input() {
 function ts() {
   check_command ffplay || return 1
   check_command figlet || return 1
-  [ -e "$HOME/.timer/start.m4a" ] || { echo "Error: ~/.timer/start.m4a does not exist!" >&2; return 1; }
-  [ -e "$HOME/.timer/end.m4a" ] || { echo "Error: ~/.timer/end.m4a does not exist!" >&2; return 1; }
+
+  # Move from old location to soundz
+  if [ -e "$HOME/.timer/start.m4a" ]; then
+    mkdir -p "$HOME/.config/soundz"
+    mv "$HOME/.timer/start.m4a" "$HOME/.config/soundz/timer-start.m4a"
+  fi
+
+  if [ -e "$HOME/.timer/end.m4a" ]; then
+    mkdir -p "$HOME/.config/soundz"
+    mv "$HOME/.timer/end.m4a" "$HOME/.config/soundz/timer-end.m4a"
+  fi
+
+  [ -e "$HOME/.config/soundz/timer-start.m4a" ] || { echo "Error: ~/.config/soundz/timer-start.m4a does not exist!" >&2; return 1; }
+  [ -e "$HOME/.config/soundz/timer-end.m4a" ] || { echo "Error: ~/.config/soundz/timer-end.m4a does not exist!" >&2; return 1; }
 
   parse_time_input time_input "$1" || return 1
 
-  play "$HOME/.timer/start.m4a"
+  play "$HOME/.config/soundz/timer-start.m4a"
 
   end_time=$(( $(date +%s) + $time_input ))
   clear
@@ -315,7 +327,7 @@ function ts() {
     return 1
   fi
 
-  play "$HOME/.timer/end.m4a"
+  play "$HOME/.config/soundz/timer-end.m4a"
 }
 
 function tm() {
@@ -418,7 +430,67 @@ function mxd() {
 }
 
 function ks() {
-  lsof -i @localhost | tail -n +2 | fzf --multi | awk {'print $2'} | xargs -I{} kill -9 {}
+  check_command fzf || return 1
+  check_command lsof || return 1
+  check_command pgrep || return 1
+  check_command pkill || return 1
+
+  local server_rows selection pid child_count
+
+  server_rows=$(
+    lsof -nP -iTCP -sTCP:LISTEN 2>/dev/null |
+      awk 'NR > 1 {
+        split($9, addr, ":")
+        port = addr[length(addr)]
+        if (port ~ /^[0-9]+$/) {
+          seen[$2] = 1
+          command[$2] = $1
+          user[$2] = $3
+          port_key = $2 ":" port
+          if (!port_seen[port_key]++) {
+            ports[$2] = ports[$2] ? ports[$2] "," port : port
+          }
+        }
+      }
+      END {
+        for (pid in seen) {
+          printf "%-8s %-18s %-10s %s\n", pid, command[pid], ports[pid], user[pid]
+        }
+      }' |
+      sort -n
+  )
+
+  if [[ -z "$server_rows" ]]; then
+    echo "No local TCP listeners found."
+    return 0
+  fi
+
+  selection=$(
+    print -r -- "$server_rows" |
+      fzf --multi
+  )
+
+  if [[ -z "$selection" ]]; then
+    return 0
+  fi
+
+  print -r -- "$selection" | while read -r pid _; do
+    if [[ ! "$pid" =~ '^[0-9]+$' ]] || ! kill -0 "$pid" 2>/dev/null; then
+      continue
+    fi
+
+    child_count=$(pgrep -P "$pid" 2>/dev/null | wc -l | tr -d ' ')
+    pkill -TERM -P "$pid" 2>/dev/null
+    kill -TERM "$pid" 2>/dev/null
+    sleep 0.2
+
+    if kill -0 "$pid" 2>/dev/null; then
+      pkill -KILL -P "$pid" 2>/dev/null
+      kill -KILL "$pid" 2>/dev/null
+    fi
+
+    echo "Killed PID $pid and $child_count child process(es)."
+  done
 }
 
 f() {
