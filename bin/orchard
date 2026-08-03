@@ -1961,23 +1961,20 @@ function parseCloneArgs(args) {
   let bootstrap = true;
   for (let index = 0;index < args.length; index += 1) {
     const arg = args[index];
-    if (arg === "--repo") {
-      const value = args[index + 1];
-      if (!value) {
-        throw new Error("--repo requires a remote URL");
-      }
-      repoUrl = value;
-      index += 1;
-      continue;
-    }
     if (arg === "--no-bootstrap") {
       bootstrap = false;
       continue;
     }
-    throw new Error(`unknown clone flag: ${arg}`);
+    if (arg.startsWith("-")) {
+      throw new Error(`unknown clone flag: ${arg}`);
+    }
+    if (repoUrl) {
+      throw new Error(`unexpected clone argument: ${arg}`);
+    }
+    repoUrl = arg;
   }
   if (!repoUrl) {
-    throw new Error("orchard clone requires --repo <remote-url>");
+    throw new Error("orchard clone requires <remote-url>");
   }
   return { repoUrl, bootstrap };
 }
@@ -2287,9 +2284,9 @@ var commands = [
   {
     name: "clone",
     summary: "Clone a repository into the orchard layout.",
-    usage: "orchard clone --repo <remote-url> [--no-bootstrap]",
+    usage: "orchard clone <remote-url> [--no-bootstrap]",
     details: [
-      "--repo <remote-url>  SSH or HTTPS Git remote to clone.",
+      "<remote-url>     SSH or HTTPS Git remote to clone.",
       "--no-bootstrap      Skip running wt_bootstrap.sh for the initial worktree."
     ]
   },
