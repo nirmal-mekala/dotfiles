@@ -50,6 +50,26 @@
                         ]
                     },
                     {
+                        "description": "send playpause to pico when f8 + caps pressed",
+                        "manipulators": [
+                            {
+                                "conditions": [
+                                    {
+                                        "name": "kb_layer_active",
+                                        "type": "variable_if",
+                                        "value": 1
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "f8",
+                                    "modifiers": { "optional": ["any"] }
+                                },
+                                "to": [{ "shell_command": "/Users/nirmal/.local/bin/pico-hid playpause" }],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
                         "description": "[ --> escape when caps lock pressed",
                         "manipulators": [
                             {
