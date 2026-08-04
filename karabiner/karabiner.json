@@ -64,7 +64,7 @@
                                     "key_code": "f8",
                                     "modifiers": { "optional": ["any"] }
                                 },
-                                "to": [{ "shell_command": "/Users/nirmal/.local/bin/pico-hid playpause" }],
+                                "to": [{ "shell_command": "/Users/nirmal/.local/bin/pico-hid-send playpause" }],
                                 "type": "basic"
                             }
                         ]
