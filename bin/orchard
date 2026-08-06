@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-import { createRequire } from "node:module";
 var __create = Object.create;
 var __getProtoOf = Object.getPrototypeOf;
 var __defProp = Object.defineProperty;
 var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 function __accessProp(key) {
   return this[key];
@@ -30,11 +30,40 @@ var __toESM = (mod, isNodeMode, target) => {
     cache.set(mod, to);
   return to;
 };
+var __toCommonJS = (from) => {
+  var entry = (__moduleCache ??= new WeakMap).get(from), desc;
+  if (entry)
+    return entry;
+  entry = __defProp({}, "__esModule", { value: true });
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (var key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(entry, key))
+        __defProp(entry, key, {
+          get: __accessProp.bind(from, key),
+          enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
+        });
+  }
+  __moduleCache.set(from, entry);
+  return entry;
+};
+var __moduleCache;
 var __commonJS = (cb, mod) => () => (mod || cb((mod = { exports: {} }).exports, mod), mod.exports);
-var __require = /* @__PURE__ */ createRequire(import.meta.url);
+var __returnValue = (v) => v;
+function __exportSetter(name, newValue) {
+  this[name] = __returnValue.bind(null, newValue);
+}
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, {
+      get: all[name],
+      enumerable: true,
+      configurable: true,
+      set: __exportSetter.bind(all, name)
+    });
+};
 
 // node_modules/sisteransi/src/index.js
-var require_src = __commonJS((exports, module) => {
+var require_src = __commonJS((exports2, module2) => {
   var ESC2 = "\x1B";
   var CSI2 = `${ESC2}[`;
   var beep = "\x07";
@@ -88,8 +117,15 @@ var require_src = __commonJS((exports, module) => {
       return clear;
     }
   };
-  module.exports = { cursor, scroll, erase, beep };
+  module2.exports = { cursor, scroll, erase, beep };
 });
+
+// src/main.ts
+var exports_main = {};
+__export(exports_main, {
+  run: () => run
+});
+module.exports = __toCommonJS(exports_main);
 
 // src/lib/result.ts
 function ok(stdout = "") {
@@ -112,15 +148,15 @@ function formatError(message) {
 }
 
 // src/commands/bootstrap.ts
-import { basename as basename3 } from "node:path";
+var import_node_path3 = require("node:path");
 
 // src/lib/bootstrap.ts
-import { accessSync, constants, statSync } from "node:fs";
+var import_node_fs = require("node:fs");
 
 // src/lib/process.ts
-import { spawn } from "node:child_process";
+var import_node_child_process = require("node:child_process");
 async function runProcess(command, args, options) {
-  const subprocess = spawn(command, [...args], {
+  const subprocess = import_node_child_process.spawn(command, [...args], {
     cwd: options.cwd,
     env: options.env
   });
@@ -163,7 +199,7 @@ async function runBootstrapScript(scriptPath, worktreePath) {
 function validateBootstrapScript(scriptPath) {
   let stats;
   try {
-    stats = statSync(scriptPath);
+    stats = import_node_fs.statSync(scriptPath);
   } catch {
     throw new Error(`bootstrap script not found: ${scriptPath}`);
   }
@@ -171,7 +207,7 @@ function validateBootstrapScript(scriptPath) {
     throw new Error(`bootstrap script not found: ${scriptPath}`);
   }
   try {
-    accessSync(scriptPath, constants.X_OK);
+    import_node_fs.accessSync(scriptPath, import_node_fs.constants.X_OK);
   } catch {
     throw new Error(`bootstrap script is not executable: ${scriptPath}`);
   }
@@ -189,9 +225,9 @@ function formatLog(kind, message) {
 }
 
 // src/lib/orchard-paths.ts
-import { existsSync, readdirSync, statSync as statSync2 } from "node:fs";
-import { homedir } from "node:os";
-import { basename, dirname, join, relative, resolve, sep } from "node:path";
+var import_node_fs2 = require("node:fs");
+var import_node_os = require("node:os");
+var import_node_path = require("node:path");
 
 // src/lib/remote.ts
 function parseRemoteUrl(remoteUrl) {
@@ -294,18 +330,18 @@ var orchardLayout = {
   symlinksDirectoryName: "_symlinks",
   bootstrapScriptName: "wt_bootstrap.sh"
 };
-function resolveProjectsRoot(homeDirectory = homedir()) {
-  return join(homeDirectory, "projects");
+function resolveProjectsRoot(homeDirectory = import_node_os.homedir()) {
+  return import_node_path.join(homeDirectory, "projects");
 }
 function repositoryRootPath(remote, projectsRoot = resolveProjectsRoot()) {
-  return join(projectsRoot, repositoryScopeDirectory(remote), remote.repoName);
+  return import_node_path.join(projectsRoot, repositoryScopeDirectory(remote), remote.repoName);
 }
 function orchardPaths(repositoryRoot) {
   return {
     repositoryRoot,
-    gitDirectory: join(repositoryRoot, orchardLayout.gitDirectoryName),
-    symlinksDirectory: join(repositoryRoot, orchardLayout.symlinksDirectoryName),
-    bootstrapScript: join(repositoryRoot, orchardLayout.bootstrapScriptName)
+    gitDirectory: import_node_path.join(repositoryRoot, orchardLayout.gitDirectoryName),
+    symlinksDirectory: import_node_path.join(repositoryRoot, orchardLayout.symlinksDirectoryName),
+    bootstrapScript: import_node_path.join(repositoryRoot, orchardLayout.bootstrapScriptName)
   };
 }
 function worktreeName(repoName, branchName) {
@@ -316,7 +352,7 @@ function worktreeName(repoName, branchName) {
   return `${repoName}_${normalizedBranchName}`;
 }
 function worktreePath(repositoryRoot, repoName, branchName) {
-  return join(repositoryRoot, worktreeName(repoName, branchName));
+  return import_node_path.join(repositoryRoot, worktreeName(repoName, branchName));
 }
 function isOrchardRepositoryRoot(repositoryRoot) {
   const paths = orchardPaths(repositoryRoot);
@@ -327,12 +363,12 @@ function isOrchardRepositoryBaseRoot(repositoryRoot) {
   return isDirectory(paths.repositoryRoot) && isDirectory(paths.gitDirectory) && isDirectory(paths.symlinksDirectory);
 }
 function findOrchardRepositoryRoot(startDirectory) {
-  let currentDirectory = resolve(startDirectory);
+  let currentDirectory = import_node_path.resolve(startDirectory);
   while (true) {
     if (isOrchardRepositoryRoot(currentDirectory)) {
       return currentDirectory;
     }
-    const parentDirectory = dirname(currentDirectory);
+    const parentDirectory = import_node_path.dirname(currentDirectory);
     if (parentDirectory === currentDirectory) {
       return;
     }
@@ -340,12 +376,12 @@ function findOrchardRepositoryRoot(startDirectory) {
   }
 }
 function findOrchardRepositoryBaseRoot(startDirectory) {
-  let currentDirectory = resolve(startDirectory);
+  let currentDirectory = import_node_path.resolve(startDirectory);
   while (true) {
     if (isOrchardRepositoryBaseRoot(currentDirectory)) {
       return currentDirectory;
     }
-    const parentDirectory = dirname(currentDirectory);
+    const parentDirectory = import_node_path.dirname(currentDirectory);
     if (parentDirectory === currentDirectory) {
       return;
     }
@@ -353,14 +389,14 @@ function findOrchardRepositoryBaseRoot(startDirectory) {
   }
 }
 function findOrchardWorktree(startDirectory) {
-  let currentDirectory = resolve(startDirectory);
+  let currentDirectory = import_node_path.resolve(startDirectory);
   while (true) {
-    const parentDirectory = dirname(currentDirectory);
+    const parentDirectory = import_node_path.dirname(currentDirectory);
     if (isOrchardRepositoryRoot(parentDirectory) && isWorktreeDirectory(currentDirectory, parentDirectory)) {
       return {
         repositoryRoot: parentDirectory,
         worktreePath: currentDirectory,
-        worktreeName: basename(currentDirectory)
+        worktreeName: import_node_path.basename(currentDirectory)
       };
     }
     if (parentDirectory === currentDirectory) {
@@ -381,12 +417,12 @@ function listOrchardRepositories(projectsRoot) {
     if (!scopeEntry.isDirectory()) {
       continue;
     }
-    const scopePath = join(projectsRoot, scopeEntry.name);
+    const scopePath = import_node_path.join(projectsRoot, scopeEntry.name);
     for (const repoEntry of safeReadDirectory(scopePath)) {
       if (!repoEntry.isDirectory()) {
         continue;
       }
-      const repositoryRoot = join(scopePath, repoEntry.name);
+      const repositoryRoot = import_node_path.join(scopePath, repoEntry.name);
       if (isOrchardRepositoryRoot(repositoryRoot)) {
         repositoryRoots.push(repositoryRoot);
       }
@@ -404,16 +440,16 @@ function listOrchardWorktreeCandidates(repositoryRoot) {
   if (!isOrchardRepositoryBaseRoot(repositoryRoot)) {
     return [];
   }
-  return safeReadDirectory(repositoryRoot).filter((entry) => entry.isDirectory()).map((entry) => join(repositoryRoot, entry.name)).filter((entryPath) => isWorktreeDirectory(entryPath, repositoryRoot)).sort();
+  return safeReadDirectory(repositoryRoot).filter((entry) => entry.isDirectory()).map((entry) => import_node_path.join(repositoryRoot, entry.name)).filter((entryPath) => isWorktreeDirectory(entryPath, repositoryRoot)).sort();
 }
 function isWorktreeDirectory(candidatePath, repositoryRoot) {
-  const candidate = resolve(candidatePath);
-  const root = resolve(repositoryRoot);
-  const relativePath = relative(root, candidate);
-  if (relativePath.length === 0 || relativePath.startsWith(`..${sep}`) || relativePath === ".." || relativePath.includes(sep)) {
+  const candidate = import_node_path.resolve(candidatePath);
+  const root = import_node_path.resolve(repositoryRoot);
+  const relativePath = import_node_path.relative(root, candidate);
+  if (relativePath.length === 0 || relativePath.startsWith(`..${import_node_path.sep}`) || relativePath === ".." || relativePath.includes(import_node_path.sep)) {
     return false;
   }
-  if (isReservedRepositoryEntry(basename(candidate))) {
+  if (isReservedRepositoryEntry(import_node_path.basename(candidate))) {
     return false;
   }
   return isDirectory(candidate);
@@ -423,21 +459,21 @@ function isReservedRepositoryEntry(entryName) {
 }
 function isDirectory(path) {
   try {
-    return existsSync(path) && statSync2(path).isDirectory();
+    return import_node_fs2.existsSync(path) && import_node_fs2.statSync(path).isDirectory();
   } catch {
     return false;
   }
 }
 function isFile(path) {
   try {
-    return existsSync(path) && statSync2(path).isFile();
+    return import_node_fs2.existsSync(path) && import_node_fs2.statSync(path).isFile();
   } catch {
     return false;
   }
 }
 function safeReadDirectory(path) {
   try {
-    return readdirSync(path, { withFileTypes: true });
+    return import_node_fs2.readdirSync(path, { withFileTypes: true });
   } catch {
     return [];
   }
@@ -463,12 +499,12 @@ function parseWorktreeArgs(commandName, args) {
 }
 
 // src/commands/worktree-selection.ts
-import { basename as basename2 } from "node:path";
+var import_node_path2 = require("node:path");
 
 // node_modules/@clack/core/dist/index.mjs
-import { styleText } from "node:util";
-import { stdout, stdin } from "node:process";
-import l__default from "node:readline";
+var import_node_util = require("node:util");
+var import_node_process = require("node:process");
+var import_node_readline = __toESM(require("node:readline"));
 
 // node_modules/fast-string-truncated-width/dist/utils.js
 var getCodePointsLength = (() => {
@@ -914,7 +950,7 @@ function setRawMode(e, r) {
 var getColumns = (e) => ("columns" in e) && typeof e.columns == "number" ? e.columns : 80;
 var getRows = (e) => ("rows" in e) && typeof e.rows == "number" ? e.rows : 20;
 function wrapTextWithPrefix(e, r, o, t2 = o, s = o, n) {
-  const f = getColumns(e ?? stdout);
+  const f = getColumns(e ?? import_node_process.stdout);
   return wrapAnsi(r, f - o.length, {
     hard: true,
     trim: false
@@ -951,7 +987,7 @@ class V {
   value;
   userInput = "";
   constructor(t2, e = true) {
-    const { input: i = stdin, output: n = stdout, render: s, signal: r, ...o } = t2;
+    const { input: i = import_node_process.stdin, output: n = import_node_process.stdout, render: s, signal: r, ...o } = t2;
     this.opts = o, this.onKeypress = this.onKeypress.bind(this), this.close = this.close.bind(this), this.render = this.render.bind(this), this._render = s.bind(this), this._track = e, this._abortSignal = r, this.input = i, this.output = n;
   }
   unsubscribe() {
@@ -983,7 +1019,7 @@ class V {
           this.state = "cancel", this.close();
         }, { once: true });
       }
-      this.rl = l__default.createInterface({
+      this.rl = import_node_readline.default.createInterface({
         input: this.input,
         tabSize: 2,
         prompt: "",
@@ -1103,11 +1139,11 @@ var T$1 = class T extends V {
   }
   get userInputWithCursor() {
     if (!this.userInput)
-      return styleText(["inverse", "hidden"], "_");
+      return import_node_util.styleText(["inverse", "hidden"], "_");
     if (this._cursor >= this.userInput.length)
       return `${this.userInput}█`;
     const e = this.userInput.slice(0, this._cursor), [t2, ...i] = this.userInput.slice(this._cursor);
-    return `${e}${styleText("inverse", t2)}${i.join("")}`;
+    return `${e}${import_node_util.styleText("inverse", t2)}${i.join("")}`;
   }
   get options() {
     return typeof this.#i == "function" ? this.#i() : this.#i;
@@ -1440,7 +1476,7 @@ class h extends V {
     const s = t2.slice(0, this.cursor), r = t2[this.cursor], e = t2.slice(this.cursor + 1);
     return r === `
 ` ? `${s}█
-${e}` : `${s}${styleText("inverse", r)}${e}`;
+${e}` : `${s}${import_node_util.styleText("inverse", r)}${e}`;
   }
   get cursor() {
     return this._cursor;
@@ -1535,14 +1571,14 @@ class a extends V {
 }
 
 // node_modules/@clack/prompts/dist/index.mjs
-import { styleText as styleText2, stripVTControlCharacters } from "node:util";
-import process$1 from "node:process";
+var import_node_util2 = require("node:util");
+var import_node_process2 = __toESM(require("node:process"));
 var import_sisteransi2 = __toESM(require_src(), 1);
 function isUnicodeSupported() {
-  if (process$1.platform !== "win32") {
-    return process$1.env.TERM !== "linux";
+  if (import_node_process2.default.platform !== "win32") {
+    return import_node_process2.default.env.TERM !== "linux";
   }
-  return Boolean(process$1.env.CI) || Boolean(process$1.env.WT_SESSION) || Boolean(process$1.env.TERMINUS_SUBLIME) || process$1.env.ConEmuTask === "{cmd::Cmder}" || process$1.env.TERM_PROGRAM === "Terminus-Sublime" || process$1.env.TERM_PROGRAM === "vscode" || process$1.env.TERM === "xterm-256color" || process$1.env.TERM === "alacritty" || process$1.env.TERMINAL_EMULATOR === "JetBrains-JediTerm";
+  return Boolean(import_node_process2.default.env.CI) || Boolean(import_node_process2.default.env.WT_SESSION) || Boolean(import_node_process2.default.env.TERMINUS_SUBLIME) || import_node_process2.default.env.ConEmuTask === "{cmd::Cmder}" || import_node_process2.default.env.TERM_PROGRAM === "Terminus-Sublime" || import_node_process2.default.env.TERM_PROGRAM === "vscode" || import_node_process2.default.env.TERM === "xterm-256color" || import_node_process2.default.env.TERM === "alacritty" || import_node_process2.default.env.TERMINAL_EMULATOR === "JetBrains-JediTerm";
 }
 var unicode = isUnicodeSupported();
 var unicodeOr = (e, o2) => unicode ? e : o2;
@@ -1575,26 +1611,26 @@ var symbol = (e) => {
   switch (e) {
     case "initial":
     case "active":
-      return styleText2("cyan", S_STEP_ACTIVE);
+      return import_node_util2.styleText("cyan", S_STEP_ACTIVE);
     case "cancel":
-      return styleText2("red", S_STEP_CANCEL);
+      return import_node_util2.styleText("red", S_STEP_CANCEL);
     case "error":
-      return styleText2("yellow", S_STEP_ERROR);
+      return import_node_util2.styleText("yellow", S_STEP_ERROR);
     case "submit":
-      return styleText2("green", S_STEP_SUBMIT);
+      return import_node_util2.styleText("green", S_STEP_SUBMIT);
   }
 };
 var symbolBar = (e) => {
   switch (e) {
     case "initial":
     case "active":
-      return styleText2("cyan", S_BAR);
+      return import_node_util2.styleText("cyan", S_BAR);
     case "cancel":
-      return styleText2("red", S_BAR);
+      return import_node_util2.styleText("red", S_BAR);
     case "error":
-      return styleText2("yellow", S_BAR);
+      return import_node_util2.styleText("yellow", S_BAR);
     case "submit":
-      return styleText2("green", S_BAR);
+      return import_node_util2.styleText("green", S_BAR);
   }
 };
 var E$1 = (l, o2, g2, c2, h2, O = false) => {
@@ -1616,7 +1652,7 @@ var limitOptions = ({
   columnPadding: O = 0,
   rowPadding: r2 = 4
 }) => {
-  const i = getColumns(c2) - O, I = getRows(c2), C2 = styleText2("dim", "..."), x = Math.max(I - r2, 0), m2 = Math.max(Math.min(h2, x), 5);
+  const i = getColumns(c2) - O, I = getRows(c2), C2 = import_node_util2.styleText("dim", "..."), x = Math.max(I - r2, 0), m2 = Math.max(Math.min(h2, x), 5);
   let p2 = 0;
   l >= m2 - 3 && (p2 = Math.max(Math.min(l - m2 + 3, o2.length - m2), 0));
   let f2 = m2 < o2.length && p2 > 0, u3 = m2 < o2.length && p2 + m2 < o2.length;
@@ -1660,15 +1696,15 @@ var select = (e) => {
     const s = t2.label ?? String(t2.value);
     switch (d) {
       case "disabled":
-        return `${styleText2("gray", S_RADIO_INACTIVE)} ${c2(s, (n2) => styleText2("gray", n2))}${t2.hint ? ` ${styleText2("dim", `(${t2.hint ?? "disabled"})`)}` : ""}`;
+        return `${import_node_util2.styleText("gray", S_RADIO_INACTIVE)} ${c2(s, (n2) => import_node_util2.styleText("gray", n2))}${t2.hint ? ` ${import_node_util2.styleText("dim", `(${t2.hint ?? "disabled"})`)}` : ""}`;
       case "selected":
-        return `${c2(s, (n2) => styleText2("dim", n2))}`;
+        return `${c2(s, (n2) => import_node_util2.styleText("dim", n2))}`;
       case "active":
-        return `${styleText2("green", S_RADIO_ACTIVE)} ${s}${t2.hint ? ` ${styleText2("dim", `(${t2.hint})`)}` : ""}`;
+        return `${import_node_util2.styleText("green", S_RADIO_ACTIVE)} ${s}${t2.hint ? ` ${import_node_util2.styleText("dim", `(${t2.hint})`)}` : ""}`;
       case "cancelled":
-        return `${c2(s, (n2) => styleText2(["strikethrough", "dim"], n2))}`;
+        return `${c2(s, (n2) => import_node_util2.styleText(["strikethrough", "dim"], n2))}`;
       default:
-        return `${styleText2("dim", S_RADIO_INACTIVE)} ${c2(s, (n2) => styleText2("dim", n2))}`;
+        return `${import_node_util2.styleText("dim", S_RADIO_INACTIVE)} ${c2(s, (n2) => import_node_util2.styleText("dim", n2))}`;
     }
   };
   return new a({
@@ -1678,21 +1714,21 @@ var select = (e) => {
     output: e.output,
     initialValue: e.initialValue,
     render() {
-      const t2 = e.withGuide ?? settings.withGuide, d = `${symbol(this.state)}  `, s = `${symbolBar(this.state)}  `, n2 = wrapTextWithPrefix(e.output, e.message, s, d), u4 = `${t2 ? `${styleText2("gray", S_BAR)}
+      const t2 = e.withGuide ?? settings.withGuide, d = `${symbol(this.state)}  `, s = `${symbolBar(this.state)}  `, n2 = wrapTextWithPrefix(e.output, e.message, s, d), u4 = `${t2 ? `${import_node_util2.styleText("gray", S_BAR)}
 ` : ""}${n2}
 `;
       switch (this.state) {
         case "submit": {
-          const r2 = t2 ? `${styleText2("gray", S_BAR)}  ` : "", l = wrapTextWithPrefix(e.output, a2(this.options[this.cursor], "selected"), r2);
+          const r2 = t2 ? `${import_node_util2.styleText("gray", S_BAR)}  ` : "", l = wrapTextWithPrefix(e.output, a2(this.options[this.cursor], "selected"), r2);
           return `${u4}${l}`;
         }
         case "cancel": {
-          const r2 = t2 ? `${styleText2("gray", S_BAR)}  ` : "", l = wrapTextWithPrefix(e.output, a2(this.options[this.cursor], "cancelled"), r2);
+          const r2 = t2 ? `${import_node_util2.styleText("gray", S_BAR)}  ` : "", l = wrapTextWithPrefix(e.output, a2(this.options[this.cursor], "cancelled"), r2);
           return `${u4}${l}${t2 ? `
-${styleText2("gray", S_BAR)}` : ""}`;
+${import_node_util2.styleText("gray", S_BAR)}` : ""}`;
         }
         default: {
-          const r2 = t2 ? `${styleText2("cyan", S_BAR)}  ` : "", l = t2 ? styleText2("cyan", S_BAR_END) : "", g2 = u4.split(`
+          const r2 = t2 ? `${import_node_util2.styleText("cyan", S_BAR)}  ` : "", l = t2 ? import_node_util2.styleText("cyan", S_BAR_END) : "", g2 = u4.split(`
 `).length, h2 = t2 ? 2 : 1;
           return `${u4}${r2}${limitOptions({
             output: e.output,
@@ -1711,7 +1747,7 @@ ${l}
     }
   }).prompt();
 };
-var i = `${styleText2("gray", S_BAR)}  `;
+var i = `${import_node_util2.styleText("gray", S_BAR)}  `;
 
 // src/commands/worktree-selection.ts
 async function selectWorktreePath(options) {
@@ -1719,7 +1755,7 @@ async function selectWorktreePath(options) {
     throw new Error("no orchard worktrees found");
   }
   if (options.requestedName) {
-    const matchingWorktree = options.worktrees.find((worktreePath2) => basename2(worktreePath2) === options.requestedName);
+    const matchingWorktree = options.worktrees.find((worktreePath2) => import_node_path2.basename(worktreePath2) === options.requestedName);
     if (!matchingWorktree) {
       throw new Error(`invalid worktree: ${options.requestedName}`);
     }
@@ -1734,7 +1770,7 @@ async function selectWorktreePath(options) {
   const selected = await select({
     message: "Select a worktree",
     options: options.worktrees.map((worktreePath2) => ({
-      label: basename2(worktreePath2),
+      label: import_node_path2.basename(worktreePath2),
       value: worktreePath2
     }))
   });
@@ -1763,7 +1799,7 @@ async function runBootstrap(args, options = {}) {
     });
     const paths = orchardPaths(repositoryRoot);
     const log = [
-      formatLog("info", `running bootstrap for ${basename3(worktreePath2)}`)
+      formatLog("info", `running bootstrap for ${import_node_path3.basename(worktreePath2)}`)
     ];
     const bootstrapResult = await runBootstrapScript(paths.bootstrapScript, worktreePath2);
     if (bootstrapResult.stdout.length > 0) {
@@ -1780,12 +1816,12 @@ function findBootstrapRepositoryRoot(cwd) {
 }
 
 // src/commands/clone.ts
-import { chmodSync, existsSync as existsSync3, mkdirSync as mkdirSync2, writeFileSync } from "node:fs";
-import { dirname as dirname4 } from "node:path";
+var import_node_fs5 = require("node:fs");
+var import_node_path6 = require("node:path");
 
 // src/lib/git.ts
-import { realpathSync } from "node:fs";
-import { basename as basename4, dirname as dirname2, join as join2, resolve as resolve2 } from "node:path";
+var import_node_fs3 = require("node:fs");
+var import_node_path4 = require("node:path");
 async function runGit(args, options) {
   try {
     return await runProcess("git", args, { cwd: options.cwd });
@@ -1824,12 +1860,12 @@ async function gitWorktreePathExists(repositoryRoot, worktreeDirectory, runner =
 `).filter((line) => line.startsWith("worktree ")).some((line) => normalizePath(line.slice("worktree ".length)) === normalizedWorktreeDirectory);
 }
 function normalizePath(path) {
-  const resolvedPath = resolve2(path);
+  const resolvedPath = import_node_path4.resolve(path);
   try {
-    return realpathSync.native(resolvedPath);
+    return import_node_fs3.realpathSync.native(resolvedPath);
   } catch {
     try {
-      return join2(realpathSync.native(dirname2(resolvedPath)), basename4(resolvedPath));
+      return import_node_path4.join(import_node_fs3.realpathSync.native(import_node_path4.dirname(resolvedPath)), import_node_path4.basename(resolvedPath));
     } catch {
       return resolvedPath.replace(/\/+$/, "");
     }
@@ -1837,19 +1873,12 @@ function normalizePath(path) {
 }
 
 // src/lib/symlink.ts
-import {
-  existsSync as existsSync2,
-  lstatSync,
-  mkdirSync,
-  readdirSync as readdirSync2,
-  readlinkSync,
-  symlinkSync
-} from "node:fs";
-import { dirname as dirname3, join as join3, relative as relative2, resolve as resolve3 } from "node:path";
+var import_node_fs4 = require("node:fs");
+var import_node_path5 = require("node:path");
 function createSymlinkPlan(symlinksDirectory, worktreePath2) {
   return listFiles(symlinksDirectory).map((sourcePath) => ({
     sourcePath,
-    destinationPath: join3(worktreePath2, relative2(symlinksDirectory, sourcePath))
+    destinationPath: import_node_path5.join(worktreePath2, import_node_path5.relative(symlinksDirectory, sourcePath))
   }));
 }
 function applySymlinks(symlinksDirectory, worktreePath2) {
@@ -1859,16 +1888,16 @@ function applySymlinks(symlinksDirectory, worktreePath2) {
       validateExistingSymlink(destinationPath, sourcePath);
       continue;
     }
-    mkdirSync(dirname3(destinationPath), { recursive: true });
-    symlinkSync(sourcePath, destinationPath);
+    import_node_fs4.mkdirSync(import_node_path5.dirname(destinationPath), { recursive: true });
+    import_node_fs4.symlinkSync(sourcePath, destinationPath);
     created.push(destinationPath);
   }
   return { created };
 }
 function listFiles(directory) {
   const files = [];
-  for (const entry of readdirSync2(directory, { withFileTypes: true })) {
-    const entryPath = join3(directory, entry.name);
+  for (const entry of import_node_fs4.readdirSync(directory, { withFileTypes: true })) {
+    const entryPath = import_node_path5.join(directory, entry.name);
     if (entry.isDirectory()) {
       files.push(...listFiles(entryPath));
       continue;
@@ -1881,25 +1910,25 @@ function listFiles(directory) {
 }
 function pathExistsOrIsSymlink(path) {
   try {
-    lstatSync(path);
+    import_node_fs4.lstatSync(path);
     return true;
   } catch {
     return false;
   }
 }
 function validateExistingSymlink(destinationPath, expectedSourcePath) {
-  const destinationStat = lstatSync(destinationPath);
+  const destinationStat = import_node_fs4.lstatSync(destinationPath);
   if (!destinationStat.isSymbolicLink()) {
     if (destinationStat.isDirectory()) {
       throw new Error(`destination is a real directory: ${destinationPath}`);
     }
     throw new Error(`destination is a real file: ${destinationPath}`);
   }
-  const linkTarget = readlinkSync(destinationPath);
-  const actualTarget = resolve3(dirname3(destinationPath), linkTarget);
-  const expectedTarget = resolve3(expectedSourcePath);
+  const linkTarget = import_node_fs4.readlinkSync(destinationPath);
+  const actualTarget = import_node_path5.resolve(import_node_path5.dirname(destinationPath), linkTarget);
+  const expectedTarget = import_node_path5.resolve(expectedSourcePath);
   if (actualTarget !== expectedTarget) {
-    if (!existsSync2(actualTarget)) {
+    if (!import_node_fs4.existsSync(actualTarget)) {
       throw new Error(`destination is a broken symlink: ${destinationPath}`);
     }
     throw new Error(`destination symlink points elsewhere: ${destinationPath}`);
@@ -1915,19 +1944,19 @@ async function runClone(args, options = {}) {
     const remote = parseRemoteUrl(cloneArgs.repoUrl);
     const repositoryRoot = repositoryRootPath(remote, options.projectsRoot);
     const paths = orchardPaths(repositoryRoot);
-    if (existsSync3(repositoryRoot)) {
+    if (import_node_fs5.existsSync(repositoryRoot)) {
       return fail(`target repository already exists: ${repositoryRoot}`);
     }
     const log = [];
     log.push(formatLog("info", `cloning ${remote.original}`));
-    mkdirSync2(dirname4(repositoryRoot), { recursive: true });
-    mkdirSync2(repositoryRoot);
+    import_node_fs5.mkdirSync(import_node_path6.dirname(repositoryRoot), { recursive: true });
+    import_node_fs5.mkdirSync(repositoryRoot);
     await requireGit(["clone", "--bare", remote.original, paths.gitDirectory], {
       cwd: repositoryRoot
     });
-    mkdirSync2(paths.symlinksDirectory);
-    writeFileSync(paths.bootstrapScript, initialBootstrapScript);
-    chmodSync(paths.bootstrapScript, 493);
+    import_node_fs5.mkdirSync(paths.symlinksDirectory);
+    import_node_fs5.writeFileSync(paths.bootstrapScript, initialBootstrapScript);
+    import_node_fs5.chmodSync(paths.bootstrapScript, 493);
     const headBranch = (await requireGit(["symbolic-ref", "--short", "HEAD"], {
       cwd: paths.gitDirectory
     })).trim();
@@ -2019,8 +2048,8 @@ function failParse(message) {
 }
 
 // src/commands/remove.ts
-import { rmSync } from "node:fs";
-import { basename as basename5 } from "node:path";
+var import_node_fs6 = require("node:fs");
+var import_node_path7 = require("node:path");
 async function runRemove(args, options = {}) {
   try {
     const removeArgs = parseWorktreeArgs("remove", args);
@@ -2046,8 +2075,8 @@ async function runRemove(args, options = {}) {
       "--force",
       targetWorktreePath
     ], { cwd: repositoryRoot });
-    rmSync(targetWorktreePath, { recursive: true, force: true });
-    return ok(formatLog("success", `removed worktree ${basename5(targetWorktreePath)}`));
+    import_node_fs6.rmSync(targetWorktreePath, { recursive: true, force: true });
+    return ok(formatLog("success", `removed worktree ${import_node_path7.basename(targetWorktreePath)}`));
   } catch (error) {
     return fail(error instanceof Error ? error.message : "remove failed");
   }
@@ -2086,7 +2115,7 @@ async function runSymlink(args, options = {}) {
 }
 
 // src/commands/tree.ts
-import { basename as basename6 } from "node:path";
+var import_node_path8 = require("node:path");
 async function runTree(args, options = {}) {
   try {
     const treeArgs = parseTreeArgs(args);
@@ -2097,7 +2126,7 @@ async function runTree(args, options = {}) {
     }
     const repositoryRoot = currentWorktree.repositoryRoot;
     const paths = orchardPaths(repositoryRoot);
-    const repoName = basename6(repositoryRoot);
+    const repoName = import_node_path8.basename(repositoryRoot);
     const branchName = branchNameForMode(treeArgs.mode);
     const targetWorktreeName = worktreeName(repoName, branchName);
     const targetWorktreePath = worktreePath(repositoryRoot, repoName, branchName);
@@ -2427,7 +2456,6 @@ var package_default = {
   name: "orchard",
   version: "0.1.2",
   description: "A CLI for managing opinionated git worktree layouts.",
-  type: "module",
   bin: {
     orchard: "./dist/orchard"
   },
@@ -2435,7 +2463,7 @@ var package_default = {
     test: "bun test",
     lint: "biome check .",
     format: "biome format --write .",
-    build: "bun build src/main.ts --target=node --outfile=dist/orchard --banner='#!/usr/bin/env node' && chmod +x dist/orchard",
+    build: "bun build src/main.ts --target=node --format=cjs --outfile=dist/orchard --banner='#!/usr/bin/env node' && chmod +x dist/orchard",
     fallow: "bunx fallow",
     check: "bun run lint && bun test && bun run build && bun run fallow"
   },
@@ -2493,16 +2521,15 @@ ${renderRootHelp()}`,
     exitCode: 1
   };
 }
-if (__require.main == __require.module) {
-  const result = await run(process.argv.slice(2));
-  if (result.stdout.length > 0) {
-    process.stdout.write(result.stdout);
-  }
-  if (result.stderr.length > 0) {
-    process.stderr.write(result.stderr);
-  }
-  process.exitCode = result.exitCode;
+if (require.main == module) {
+  (async () => {
+    const result = await run(process.argv.slice(2));
+    if (result.stdout.length > 0) {
+      process.stdout.write(result.stdout);
+    }
+    if (result.stderr.length > 0) {
+      process.stderr.write(result.stderr);
+    }
+    process.exitCode = result.exitCode;
+  })();
 }
-export {
-  run
-};
