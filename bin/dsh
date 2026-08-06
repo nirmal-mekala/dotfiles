@@ -660,6 +660,20 @@ async function completeTask(slug) {
     source: taskActivity.source
   };
 }
+async function resolveTask(slug) {
+  const { baseUrl } = getApiConfig();
+  const taskActivity = await fetchJson(buildTaskUrl(baseUrl, slug), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ status: "resolved" })
+  });
+  return {
+    ...taskActivity.signal,
+    source: taskActivity.source
+  };
+}
 
 // src/interaction.ts
 function moveSelection(state, displaySignalIndexes, direction) {
@@ -684,7 +698,7 @@ function jumpSelection(state, displaySignalIndexes, position) {
   }
   state.selectedSignalIndex = position === "top" ? displaySignalIndexes[0] : displaySignalIndexes[displaySignalIndexes.length - 1];
 }
-async function waitForTuiInput(onMove, onJump, onToggleOkVisibility, onRefresh, onComplete) {
+async function waitForTuiInput(onMove, onJump, onToggleOkVisibility, onRefresh, onComplete, onResolve) {
   return new Promise((resolve) => {
     let pendingG = false;
     let isRunningAction = false;
@@ -767,6 +781,11 @@ async function waitForTuiInput(onMove, onJump, onToggleOkVisibility, onRefresh, 
         if (key === "c") {
           pendingG = false;
           await runAction(onComplete);
+          continue;
+        }
+        if (key === "e") {
+          pendingG = false;
+          await runAction(onResolve);
           continue;
         }
         pendingG = false;
@@ -874,6 +893,7 @@ function buildHelpText(selectedSignal, hideOkSignals) {
     items.push(`${keyColor}r${itemColor}efresh`);
     if (selectedSignal.source.managedTask) {
       items.push(`${keyColor}c${itemColor}omplete`);
+      items.push(`r${keyColor}e${itemColor}solve`);
     }
   }
   return items.join(HELP_TEXT_SEPARATOR);
@@ -1190,6 +1210,17 @@ async function runTui(signals) {
     }
     await runWithLoading(selectedSignalIndex, () => completeTask(selectedSignal.source.slug));
   };
+  const resolveSelectedTask = async () => {
+    const selectedSignalIndex = state.selectedSignalIndex;
+    if (selectedSignalIndex === null) {
+      return;
+    }
+    const selectedSignal = signals[selectedSignalIndex];
+    if (!selectedSignal?.source.managedTask) {
+      return;
+    }
+    await runWithLoading(selectedSignalIndex, () => resolveTask(selectedSignal.source.slug));
+  };
   process.stdout.write(`${ansi.enterAlternateScreen}${ansi.hideCursor}`);
   try {
     if (process.stdin.isTTY) {
@@ -1201,7 +1232,7 @@ async function runTui(signals) {
     fullRefreshInterval = setInterval(() => {
       refreshAllSignals();
     }, FULL_REFRESH_INTERVAL_MS);
-    exitReason = await waitForTuiInput(moveAndRender, jumpAndRender, toggleOkVisibilityAndRender, refreshSelectedSignal, completeSelectedTask);
+    exitReason = await waitForTuiInput(moveAndRender, jumpAndRender, toggleOkVisibilityAndRender, refreshSelectedSignal, completeSelectedTask, resolveSelectedTask);
   } finally {
     if (fullRefreshInterval !== null) {
       clearInterval(fullRefreshInterval);
@@ -1241,6 +1272,7 @@ if (isMainModule()) {
 }
 export {
   runTui,
+  resolveTask,
   replaceSignals,
   renderTuiBuffer,
   groupSignals,
