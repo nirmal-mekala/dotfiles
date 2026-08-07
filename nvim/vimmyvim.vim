@@ -60,10 +60,8 @@ inoremap <C-]> ’
 inoremap <C-]><C-]> ‘’<left>
 augroup markdown
   autocmd!
-  autocmd FileType markdown,mkd inoremap --- —
-  autocmd FileType markdown,mkd inoremap !-- !--
-  autocmd FileType markdown,mkd inoremap --> -->
-  autocmd FileType markdown,mkd inoremap -- –
+  autocmd FileType markdown,mkd inoremap <leader>--- —
+  autocmd FileType markdown,mkd inoremap <leader>-- –
   autocmd FileType markdown,mkd inoremap ... …
   autocmd FileType markdown,mkd setlocal textwidth=80 
   autocmd FileType markdown,mkd setlocal formatoptions-=l
