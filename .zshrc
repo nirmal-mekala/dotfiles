@@ -17,7 +17,12 @@ fi
 check_command fzf && [[ $(printf '%s\n' $(fzf --version | awk '{print $1}') "0.48.0" | sort -V | head -n1)  == "0.48.0" ]] && source <(fzf --zsh)
 
 export PATH="$HOME/.dotfiles/bin:$PATH"
-autoload -Uz compinit && compinit # autocomplete
+autoload -Uz compinit
+if [[ -n ${HOME}/.zcompdump(#qN.mh+24) ]]; then
+  compinit
+else
+  compinit -C
+fi # autocomplete, skip full rebuild/audit unless cache is >24h old
 bindkey -r "^X" # give vim ctrl x
 bindkey -v '^?' backward-delete-char
 export EDITOR="nvim"
