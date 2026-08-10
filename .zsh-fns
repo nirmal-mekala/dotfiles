@@ -128,7 +128,7 @@ xt () {
 ### orchard
 
 fzf_orchard_dir() {
-  orchard list | fzf
+  orchard list --worktrees | fzf
 }
 
 ### ghq
