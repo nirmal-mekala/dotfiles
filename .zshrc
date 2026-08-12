@@ -10,7 +10,11 @@ fi
 [[ -f ~/.zsh-fns ]] && source ~/.zsh-fns
 [[ -f ~/.zsh-aliases ]] && source ~/.zsh-aliases
 [[ -f ~/.localshrc ]] && source ~/.localshrc
-[[ -f "$POWERLEVEL_THEME_LOCATION" ]] && source "$POWERLEVEL_THEME_LOCATION"
+if [[ -f "$POWERLEVEL_THEME_LOCATION" ]]; then
+  source "$POWERLEVEL_THEME_LOCATION"
+elif [[ -f ~/powerlevel10k/powerlevel10k.zsh-theme ]]; then
+  source ~/powerlevel10k/powerlevel10k.zsh-theme
+fi
 
 # check_command comes from zsh-fns
 # fzf zsh completion requries version >= 0.48.0

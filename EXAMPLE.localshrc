@@ -12,15 +12,13 @@
 # local vars
 ##################
 
-# export TODO_SH="/opt/homebrew/opt/todo-txt/bin"
 # export POWERLEVEL_THEME_LOCATION="/opt/homebrew/opt/powerlevel10k/powerlevel10k.zsh-theme"
-# export ORG_DIRECTORY="/Users/nirmal/ghq/github.com/nirmal-mekala/organizer"
 # POWERLEVEL9K_DISABLE_GITSTATUS=true
 # export LANG=en_US.UTF-8
 # export LC_ALL=en_US.UTF-8
 
 ##################
-# nvm
+# nvm - you should probably use fnm tho
 ##################
 
 # export NVM_DIR="$HOME/.nvm"
