@@ -28,6 +28,7 @@ else
   compinit -C
 fi # autocomplete, skip full rebuild/audit unless cache is >24h old
 bindkey -r "^X" # give vim ctrl x
+bindkey -r "^P" # give tmux ctrl p
 bindkey -v '^?' backward-delete-char
 export EDITOR="nvim"
 setopt HIST_IGNORE_SPACE
