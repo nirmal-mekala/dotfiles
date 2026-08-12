@@ -510,6 +510,19 @@ var LOADING_SPINNER_FRAMES = ["\xB7", "\u273B", "\u273D", "\u2736", "\u2733", "\
 var LOADING_SPINNER_INTERVAL_MS = 120;
 var LOADING_MIN_VISIBLE_MS = 250;
 var FULL_REFRESH_INTERVAL_MS = 5 * 60 * 1e3;
+var AOK_ART = [
+  "      ___           ___           ___",
+  "     /\\  \\         /\\  \\         /|  |",
+  "    /::\\  \\       /::\\  \\       |:|  |",
+  "   /:/\\:\\  \\     /:/\\:\\  \\      |:|  |",
+  "  /:/ /::\\  \\   /:/  \\:\\  \\   __|:|  |",
+  " /:/_/:/\\:\\__\\ /:/__/ \\:\\__\\ /\\ |:|__|____",
+  " \\:\\/:/  \\/__/ \\:\\  \\ /:/  / \\:\\/:::::/__/",
+  "  \\::/__/       \\:\\  /:/  /   \\::/~~/~",
+  "   \\:\\  \\        \\:\\/:/  /     \\:\\~~\\",
+  "    \\:\\__\\        \\::/  /       \\:\\__\\",
+  "     \\/__/         \\/__/         \\/__/"
+];
 var ansi = {
   enterAlternateScreen: "\x1B[?1049h",
   exitAlternateScreen: "\x1B[?1049l",
@@ -799,7 +812,7 @@ async function waitForTuiInput(onMove, onJump, onToggleOkVisibility, onRefresh, 
         }
         if (key === "o") {
           pendingG = false;
-          onToggleOkVisibility();
+          await runAction(onToggleOkVisibility);
           continue;
         }
         if (key === "c") {
@@ -1046,6 +1059,26 @@ function normalizeScrollOffset(rows, viewportHeight, selectedSignalIndex, scroll
   }
   return Math.min(Math.max(0, nextScrollOffset), maxScrollOffset);
 }
+function buildAokLines(terminalWidth, viewportHeight) {
+  if (viewportHeight <= 0) {
+    return [];
+  }
+  const artWidth = Math.max(0, ...AOK_ART.map((line) => line.length));
+  const verticalOffset = Math.max(
+    0,
+    Math.floor((viewportHeight - AOK_ART.length) / 2)
+  );
+  const horizontalOffset = Math.max(0, Math.floor((terminalWidth - artWidth) / 2));
+  const lines = [];
+  for (let row = 0; row < viewportHeight; row += 1) {
+    const artIndex = row - verticalOffset;
+    const artLine = AOK_ART[artIndex];
+    lines.push(
+      artLine === void 0 ? "" : `${" ".repeat(horizontalOffset)}${colors.green}${artLine}${colors.reset}`
+    );
+  }
+  return lines;
+}
 function renderTuiBuffer(signals, terminalWidth = 80, terminalHeight = 24, userTimezone = getUserTimezone(), options = {}) {
   const contentRows = buildSignalRows(
     signals,
@@ -1069,6 +1102,14 @@ function renderTuiBuffer(signals, terminalWidth = 80, terminalHeight = 24, userT
     return [footer, ""].join("\n");
   }
   const viewportHeight = Math.max(0, terminalHeight - 3);
+  if ((options.hideOkSignals ?? false) && contentRows.length === 0) {
+    return [
+      ...buildAokLines(terminalWidth, viewportHeight),
+      "",
+      footer,
+      ""
+    ].join("\n");
+  }
   const scrollOffset = normalizeScrollOffset(
     contentRows,
     viewportHeight,
@@ -1222,10 +1263,13 @@ async function runTui(signals) {
     jumpSelection(state, getDisplayIndexes(), position);
     rerender();
   };
-  const toggleOkVisibilityAndRender = () => {
+  const toggleOkVisibilityAndRender = async () => {
     state.hideOkSignals = !state.hideOkSignals;
     keepSelectionVisible();
     rerender();
+    if (state.hideOkSignals && getDisplayIndexes().length === 0) {
+      await refreshAllSignals();
+    }
   };
   const replaceSignalAt = (signalIndex, signal) => {
     const existingSignal = signals[signalIndex];
