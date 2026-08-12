@@ -1,6 +1,6 @@
-##################
+#######################################
 # local aliases
-##################
+#######################################
 
 # alias zcw="cd /Users/nirmal/Documents/cw-docs"
 # alias zoc="cd /Users/nirmal/Documents"
@@ -8,44 +8,26 @@
 # alias zown="cd /Users/nirmal/Downloads"
 # alias zorg="cd /Users/nirmal/ghq/github.com/nirmal-mekala/organizer"
 
-##################
+#######################################
 # local vars
-##################
+#######################################
 
 # export POWERLEVEL_THEME_LOCATION="/opt/homebrew/opt/powerlevel10k/powerlevel10k.zsh-theme"
 # POWERLEVEL9K_DISABLE_GITSTATUS=true
 # export LANG=en_US.UTF-8
 # export LC_ALL=en_US.UTF-8
 
-##################
+#######################################
 # nvm - you should probably use fnm tho
-##################
+#######################################
 
 # export NVM_DIR="$HOME/.nvm"
 # [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 # [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-##################
-# google cloud sdk
-##################
 
-# export PATH=/Users/nirmal/google-cloud-sdk/bin:/Library/Frameworks/Python.framework/Versions/2.7/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:~/.dotnet/tools:/Library/Apple/usr/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/Users/nirmal/bin
-
-# The next line updates PATH for the Google Cloud SDK.
-# if [ -f '/Users/nirmal/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/nirmal/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-# if [ -f '/Users/nirmal/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/nirmal/google-cloud-sdk/completion.zsh.inc'; fi
-
-##################
-# ruby
-##################
-
-# source /opt/homebrew/opt/chruby/share/chruby/chruby.sh
-# source /opt/homebrew/opt/chruby/share/chruby/auto.sh
-
-##################
+#######################################
 # export local bin
-##################
+#######################################
 
 # export PATH="$PATH:/Users/nirmal/.local/bin"
