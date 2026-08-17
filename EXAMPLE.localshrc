@@ -16,6 +16,7 @@
 # POWERLEVEL9K_DISABLE_GITSTATUS=true
 # export LANG=en_US.UTF-8
 # export LC_ALL=en_US.UTF-8
+# export P10K_MACHINE_TAG="cw-mbp"
 
 #######################################
 # nvm - you should probably use fnm tho

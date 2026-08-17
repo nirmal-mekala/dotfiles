@@ -94,6 +94,7 @@
     # todo                  # todo items (https://github.com/todotxt/todo.txt-cli)
     timewarrior             # timewarrior tracking status (https://timewarrior.net/)
     taskwarrior             # taskwarrior task count (https://taskwarrior.org/)
+    machine_tag             # machine-specific label from $P10K_MACHINE_TAG (see prompt_machine_tag below)
     time                    # current time
     # ip                    # ip address and bandwidth usage for a specified network interface
     # public_ip             # public IP address
@@ -1574,6 +1575,15 @@
   # User-defined prompt segments can be customized the same way as built-in segments.
   # typeset -g POWERLEVEL9K_EXAMPLE_FOREGROUND=208
   # typeset -g POWERLEVEL9K_EXAMPLE_VISUAL_IDENTIFIER_EXPANSION='⭐'
+
+  # Machine-specific tag, set per-machine via $P10K_MACHINE_TAG (e.g. in .localshrc).
+  # Segment is hidden entirely when the env var is unset/empty.
+  function prompt_machine_tag() {
+    [[ -n "$P10K_MACHINE_TAG" ]] && p10k segment -f 208 -t "$P10K_MACHINE_TAG"
+  }
+  function instant_prompt_machine_tag() {
+    prompt_machine_tag
+  }
 
   # Transient prompt works similarly to the builtin transient_rprompt option. It trims down prompt
   # when accepting a command line. Supported values:
