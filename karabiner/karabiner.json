@@ -70,6 +70,26 @@
                         ]
                     },
                     {
+                        "description": "send space to pico when space + caps pressed",
+                        "manipulators": [
+                            {
+                                "conditions": [
+                                    {
+                                        "name": "kb_layer_active",
+                                        "type": "variable_if",
+                                        "value": 1
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "spacebar",
+                                    "modifiers": { "optional": ["any"] }
+                                },
+                                "to": [{ "shell_command": "/Users/nirmal/.local/bin/pico-hid-send space" }],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
                         "description": "[ --> escape when caps lock pressed",
                         "manipulators": [
                             {
