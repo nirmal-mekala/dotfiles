@@ -29,6 +29,7 @@
 
   # The list of segments shown on the left. Fill it with the most important segments.
   typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
+    machine_tag             # machine-specific label from $P10K_MACHINE_TAG (see prompt_machine_tag below)
     # os_icon               # os identifier
     dir                     # current directory
     vcs                     # git status
@@ -94,7 +95,6 @@
     # todo                  # todo items (https://github.com/todotxt/todo.txt-cli)
     timewarrior             # timewarrior tracking status (https://timewarrior.net/)
     taskwarrior             # taskwarrior task count (https://taskwarrior.org/)
-    machine_tag             # machine-specific label from $P10K_MACHINE_TAG (see prompt_machine_tag below)
     time                    # current time
     # ip                    # ip address and bandwidth usage for a specified network interface
     # public_ip             # public IP address
@@ -1579,7 +1579,10 @@
   # Machine-specific tag, set per-machine via $P10K_MACHINE_TAG (e.g. in .localshrc).
   # Segment is hidden entirely when the env var is unset/empty.
   function prompt_machine_tag() {
-    [[ -n "$P10K_MACHINE_TAG" ]] && p10k segment -f 208 -t "$P10K_MACHINE_TAG"
+    # Black-on-yellow (basic 8-color codes) instead of a 256-color fg-only
+    # style: those get remapped/washed out in some terminals/multiplexers,
+    # while an 8-color bg block stays visible almost everywhere.
+    [[ -n "$P10K_MACHINE_TAG" ]] && p10k segment -f 0 -b 3 -t "$P10K_MACHINE_TAG"
   }
   function instant_prompt_machine_tag() {
     prompt_machine_tag

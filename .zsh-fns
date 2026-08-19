@@ -352,6 +352,14 @@ function fh() {
 
 function mkncd() { mkdir -p "$1" && cd "$1"; }
 
+# Docker navigation
+
+function dfz() { #Docker Fzf then Zsh
+  local name
+  name="$(docker container ls --format '{{.Names}}' | fzf)"
+  [[ -n "$name" ]] && docker exec -it "$name" zsh
+}
+
 # TMUX
 
 mxq() {
