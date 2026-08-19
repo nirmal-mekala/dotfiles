@@ -1579,10 +1579,13 @@
   # Machine-specific tag, set per-machine via $P10K_MACHINE_TAG (e.g. in .localshrc).
   # Segment is hidden entirely when the env var is unset/empty.
   function prompt_machine_tag() {
-    # Black-on-yellow (basic 8-color codes) instead of a 256-color fg-only
+    # Yellow-on-black (basic 8-color codes) instead of a 256-color fg-only
     # style: those get remapped/washed out in some terminals/multiplexers,
-    # while an 8-color bg block stays visible almost everywhere.
-    [[ -n "$P10K_MACHINE_TAG" ]] && p10k segment -f 0 -b 3 -t "$P10K_MACHINE_TAG"
+    # while an 8-color bg block stays visible almost everywhere. Yellow fg
+    # (rather than black fg) also keeps the tag legible when the segment's
+    # background box doesn't render and only the foreground color shows,
+    # which was invisible against black terminal backgrounds.
+    [[ -n "$P10K_MACHINE_TAG" ]] && p10k segment -f 3 -b 0 -t "$P10K_MACHINE_TAG"
   }
   function instant_prompt_machine_tag() {
     prompt_machine_tag
