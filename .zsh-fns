@@ -128,7 +128,10 @@ xt () {
 ### orchard
 
 fzf_orchard_dir() {
-  orchard list --worktrees | fzf
+  local list
+  list=$(orchard list --worktrees) || return 1
+  [[ -z "$list" ]] && return 1
+  print -r -- "$list" | fzf
 }
 
 ### ghq
