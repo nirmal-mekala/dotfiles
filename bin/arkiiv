@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ "$(basename "$PWD")" != "pensieve_main" || "$(basename "$PWD")" != "pensieve" ]]; then
+if [[ "$(basename "$PWD")" != "pensieve_main" && "$(basename "$PWD")" != "pensieve" ]]; then
   echo "arkiiv: must be run inside a directory named 'pensieve_main' or 'pensieve'." >&2
   exit 1
 fi
