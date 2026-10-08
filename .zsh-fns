@@ -508,3 +508,7 @@ f() {
     fff "$@"
     cd "$(cat "${XDG_CACHE_HOME:=${HOME}/.cache}/fff/.fff_d")"
 }
+
+timestamp() {
+  date +%y%m%d%H%M%S
+}
