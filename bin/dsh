@@ -491,10 +491,10 @@ var colors = {
   reset: "\x1B[0m"
 };
 var statusStyles = {
-  critical: { color: colors.red, marker: "!" },
-  warn: { color: colors.yellow, marker: "!" },
-  ok: { color: colors.green, marker: "\u2713" },
-  error: { color: colors.red, marker: "\u2717" }
+  critical: { color: colors.red, marker: "!", asciiMarker: "[!]" },
+  warn: { color: colors.yellow, marker: "!", asciiMarker: "[!]" },
+  ok: { color: colors.green, marker: "\u2713", asciiMarker: "[+]" },
+  error: { color: colors.red, marker: "\u2717", asciiMarker: "[x]" }
 };
 var TEXT_INDENT = 2;
 var HEADER_INDENT = TEXT_INDENT * 2 + 1;
@@ -504,9 +504,15 @@ var DEFAULT_LIMIT = 25;
 var DEFAULT_OFFSET = 0;
 var SIGNAL_UPDATED_AT_FORMAT = "ddd MMM DD, YYYY hh:mm A";
 var WATCH_TEXT_SYMBOL = "\u231A\uFE0E ";
+var ASCII_WATCH_TEXT_SYMBOL = "@ ";
 var HELP_TEXT_SEPARATOR = " \u2022 ";
+var ASCII_HELP_TEXT_SEPARATOR = " | ";
+var ELLIPSIS = "\u2026";
+var ASCII_ELLIPSIS = "...";
 var CARET = "\u276F";
+var ASCII_CARET = ">";
 var LOADING_SPINNER_FRAMES = ["\xB7", "\u273B", "\u273D", "\u2736", "\u2733", "\u2722"];
+var ASCII_LOADING_SPINNER_FRAMES = ["[|]", "[/]", "[-]", "[\\]"];
 var LOADING_SPINNER_INTERVAL_MS = 120;
 var LOADING_MIN_VISIBLE_MS = 250;
 var FULL_REFRESH_INTERVAL_MS = 5 * 60 * 1e3;
@@ -896,17 +902,17 @@ function getDisplaySignalIndexes(signals, options = {}) {
 }
 
 // src/text.ts
-function truncateWithEllipsis(value, maxLength) {
+function truncateWithEllipsis(value, maxLength, ellipsis = ELLIPSIS) {
   if (maxLength <= 0) {
     return "";
   }
   if (value.length <= maxLength) {
     return value;
   }
-  if (maxLength === 1) {
-    return "\u2026";
+  if (maxLength <= ellipsis.length) {
+    return ellipsis.slice(0, maxLength);
   }
-  return `${value.slice(0, maxLength - 1)}\u2026`;
+  return `${value.slice(0, maxLength - ellipsis.length)}${ellipsis}`;
 }
 
 // src/time.ts
@@ -922,8 +928,8 @@ function getUserTimezone() {
 function formatDateTime(dateTime, userTimezone = getUserTimezone()) {
   return import_dayjs.default.utc(dateTime).tz(userTimezone).format(SIGNAL_UPDATED_AT_FORMAT);
 }
-function formatSignalUpdatedAt(signalUpdatedAt, userTimezone = getUserTimezone()) {
-  return `${WATCH_TEXT_SYMBOL}${formatDateTime(signalUpdatedAt, userTimezone)}`;
+function formatSignalUpdatedAt(signalUpdatedAt, userTimezone = getUserTimezone(), watchSymbol = WATCH_TEXT_SYMBOL) {
+  return `${watchSymbol}${formatDateTime(signalUpdatedAt, userTimezone)}`;
 }
 function formatIsoDateTimesInText(text, userTimezone = getUserTimezone()) {
   return text.replace(ISO_DATE_TIME_PATTERN, (dateTime) => {
@@ -933,7 +939,7 @@ function formatIsoDateTimesInText(text, userTimezone = getUserTimezone()) {
 }
 
 // src/render.ts
-function buildHelpText(selectedSignal, hideOkSignals) {
+function buildHelpText(selectedSignal, hideOkSignals, separator = HELP_TEXT_SEPARATOR) {
   const itemColor = colors.gray;
   const keyColor = colors.white;
   const items = [
@@ -947,17 +953,29 @@ function buildHelpText(selectedSignal, hideOkSignals) {
       items.push(`r${keyColor}e${itemColor}solve`);
     }
   }
-  return items.join(HELP_TEXT_SEPARATOR);
+  return items.join(separator);
+}
+function getMarkerWidth(ascii) {
+  return (ascii ? statusStyles.ok.asciiMarker.length : 1) + 1;
+}
+function getMarkerWidthOffset(ascii) {
+  return getMarkerWidth(ascii) - getMarkerWidth(false);
 }
 function buildSignalRows(signals, terminalWidth = 80, userTimezone = getUserTimezone(), options = {}) {
-  const markerWidth = 2;
+  const markerWidth = getMarkerWidth(options.ascii ?? false);
+  const markerWidthOffset = getMarkerWidthOffset(options.ascii ?? false);
+  const ellipsis = options.ascii ? ASCII_ELLIPSIS : ELLIPSIS;
+  const watchSymbol = options.ascii ? ASCII_WATCH_TEXT_SYMBOL : WATCH_TEXT_SYMBOL;
   const signalIndentWidth = options.showSelectionGutter ? 1 : TEXT_INDENT;
   const signalPrefixWidth = options.showSelectionGutter ? 2 : 0;
   const maxTextLength = Math.max(
     0,
     terminalWidth - signalIndentWidth - signalPrefixWidth
   );
-  const maxHeaderLength = Math.max(0, terminalWidth - HEADER_INDENT);
+  const maxHeaderLength = Math.max(
+    0,
+    terminalWidth - HEADER_INDENT - markerWidthOffset
+  );
   const signalNameWidth = Math.min(
     Math.max(0, maxTextLength - markerWidth),
     Math.max(0, ...signals.map((signal) => signal.source.name.length))
@@ -968,7 +986,7 @@ function buildSignalRows(signals, terminalWidth = 80, userTimezone = getUserTime
   const formattedSignalUpdatedAts = new Map(
     signals.map((signal) => [
       signal,
-      formatSignalUpdatedAt(signal.signalUpdatedAt, userTimezone)
+      formatSignalUpdatedAt(signal.signalUpdatedAt, userTimezone, watchSymbol)
     ])
   );
   const signalUpdatedAtWidth = Math.max(
@@ -985,7 +1003,8 @@ function buildSignalRows(signals, terminalWidth = 80, userTimezone = getUserTime
       signal,
       truncateWithEllipsis(
         formatIsoDateTimesInText(signal.message, userTimezone),
-        maxMessageLength
+        maxMessageLength,
+        ellipsis
       )
     ])
   );
@@ -994,7 +1013,9 @@ function buildSignalRows(signals, terminalWidth = 80, userTimezone = getUserTime
     hideOkSignals: options.hideOkSignals ?? false
   });
   const rows = [];
-  const headerIndent = " ".repeat(HEADER_INDENT);
+  const headerIndent = " ".repeat(HEADER_INDENT + markerWidthOffset);
+  const spinnerFrames = options.ascii ? ASCII_LOADING_SPINNER_FRAMES : LOADING_SPINNER_FRAMES;
+  const caret = options.ascii ? ASCII_CARET : CARET;
   const signalIndent = " ".repeat(signalIndentWidth);
   for (const [groupName, groupSignals2] of groups) {
     rows.push({ type: "blank", text: "" });
@@ -1002,18 +1023,20 @@ function buildSignalRows(signals, terminalWidth = 80, userTimezone = getUserTime
       type: "header",
       text: `${headerIndent}${colors.gray}${truncateWithEllipsis(
         groupName.toUpperCase(),
-        maxHeaderLength
+        maxHeaderLength,
+        ellipsis
       )}${colors.reset}`
     });
     rows.push({ type: "blank", text: "" });
     for (const { signal, signalIndex } of groupSignals2) {
       const style = statusStyles[signal.status];
       const isLoading = options.loadingSignalIndexes?.has(signalIndex) ?? false;
-      const marker = isLoading ? LOADING_SPINNER_FRAMES[(options.loadingFrame ?? 0) % LOADING_SPINNER_FRAMES.length] : style.marker;
+      const marker = isLoading ? spinnerFrames[(options.loadingFrame ?? 0) % spinnerFrames.length] : options.ascii ? style.asciiMarker : style.marker;
       const markerColor = isLoading ? colors.blue : style.color;
       const signalName = truncateWithEllipsis(
         signal.source.name,
-        signalNameWidth
+        signalNameWidth,
+        ellipsis
       ).padEnd(signalNameWidth);
       const message = messages.get(signal) ?? "";
       const signalUpdatedAt = formattedSignalUpdatedAts.get(signal) ?? "";
@@ -1022,7 +1045,7 @@ function buildSignalRows(signals, terminalWidth = 80, userTimezone = getUserTime
         messageColumnWidth - message.length + MIN_COLUMN_GAP
       )}${signalUpdatedAt}` : ""}` : "";
       const rowText = isLoading ? `${colors.gray}${signalName}${separatorText}${detailText}${colors.reset}` : `${signalName}${separatorText}${detailText ? `${colors.gray}${detailText}${colors.reset}` : ""}`;
-      const selectionPrefix = options.showSelectionGutter ? `${signalIndex === options.selectedSignalIndex ? `${colors.blue}${CARET}${colors.reset}` : " "} ` : "";
+      const selectionPrefix = options.showSelectionGutter ? `${signalIndex === options.selectedSignalIndex ? `${colors.blue}${caret}${colors.reset}` : " "} ` : "";
       rows.push({
         type: "signal",
         signalIndex,
@@ -1035,8 +1058,8 @@ function buildSignalRows(signals, terminalWidth = 80, userTimezone = getUserTime
   }
   return rows;
 }
-function formatSignals(signals, terminalWidth = 80, userTimezone = getUserTimezone()) {
-  return buildSignalRows(signals, terminalWidth, userTimezone).map((row) => row.text).join("\n");
+function formatSignals(signals, terminalWidth = 80, userTimezone = getUserTimezone(), options = {}) {
+  return buildSignalRows(signals, terminalWidth, userTimezone, options).map((row) => row.text).join("\n");
 }
 function getSelectedRowIndex(rows, selectedSignalIndex) {
   return rows.findIndex((row) => row.signalIndex === selectedSignalIndex);
@@ -1089,12 +1112,18 @@ function renderTuiBuffer(signals, terminalWidth = 80, terminalHeight = 24, userT
       hideOkSignals: options.hideOkSignals ?? false,
       showSelectionGutter: options.showSelectionGutter ?? true,
       loadingSignalIndexes: options.loadingSignalIndexes,
-      loadingFrame: options.loadingFrame
+      loadingFrame: options.loadingFrame,
+      ascii: options.ascii ?? false
     }
   );
   const selectedSignal = options.selectedSignalIndex === null || options.selectedSignalIndex === void 0 || !contentRows.some((row) => row.signalIndex === options.selectedSignalIndex) ? null : signals[options.selectedSignalIndex] ?? null;
-  const helpText = buildHelpText(selectedSignal, options.hideOkSignals ?? false);
-  const footer = `${" ".repeat(FOOTER_INDENT)}${colors.gray}${helpText}${colors.reset}`;
+  const helpText = buildHelpText(
+    selectedSignal,
+    options.hideOkSignals ?? false,
+    options.ascii ? ASCII_HELP_TEXT_SEPARATOR : HELP_TEXT_SEPARATOR
+  );
+  const footerIndent = FOOTER_INDENT + getMarkerWidthOffset(options.ascii ?? false);
+  const footer = `${" ".repeat(footerIndent)}${colors.gray}${helpText}${colors.reset}`;
   if (terminalHeight <= 1) {
     return "";
   }
@@ -1124,7 +1153,7 @@ function renderTuiBuffer(signals, terminalWidth = 80, terminalHeight = 24, userT
 }
 
 // src/terminal.ts
-function createTuiRenderer(signals, state, userTimezone = getUserTimezone()) {
+function createTuiRenderer(signals, state, userTimezone = getUserTimezone(), renderOptions = {}) {
   let previousLines = null;
   return (force = false) => {
     const buffer = renderTuiBuffer(
@@ -1132,7 +1161,7 @@ function createTuiRenderer(signals, state, userTimezone = getUserTimezone()) {
       process.stdout.columns || 80,
       process.stdout.rows || 24,
       userTimezone,
-      state
+      { ...state, ...renderOptions }
     );
     const lines = buffer.split("\n");
     if (force || previousLines === null) {
@@ -1189,7 +1218,7 @@ async function waitForMinimumLoadingDuration(startedAtMs, now = () => performanc
     await wait(remainingMs);
   }
 }
-async function runTui(signals) {
+async function runTui(signals, renderOptions = {}) {
   const stdinWasPaused = process.stdin.isPaused();
   const rawModeWasEnabled = process.stdin.isTTY ? process.stdin.isRaw : false;
   let exitReason = "quit";
@@ -1200,7 +1229,7 @@ async function runTui(signals) {
     loadingSignalIndexes: /* @__PURE__ */ new Set(),
     loadingFrame: 0
   };
-  const render = createTuiRenderer(signals, state);
+  const render = createTuiRenderer(signals, state, void 0, renderOptions);
   let loadingInterval = null;
   let fullRefreshInterval = null;
   let isRowActionRunning = false;
@@ -1212,7 +1241,7 @@ async function runTui(signals) {
       return;
     }
     loadingInterval = setInterval(() => {
-      state.loadingFrame = (state.loadingFrame + 1) % LOADING_SPINNER_FRAMES.length;
+      state.loadingFrame += 1;
       rerender();
     }, LOADING_SPINNER_INTERVAL_MS);
   };
@@ -1407,7 +1436,9 @@ if (isMainModule()) {
   (async () => {
     try {
       const response = await fetchSignals();
-      const exitReason = await runTui(response.data);
+      const exitReason = await runTui(response.data, {
+        ascii: process.argv.includes("--ascii")
+      });
       process.exit(exitReason === "interrupt" ? 130 : 0);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
