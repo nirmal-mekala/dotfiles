@@ -512,3 +512,14 @@ f() {
 timestamp() {
   date +%Y%m%d%H%M%S
 }
+
+jaydubyatee() {
+  if [[ -z "$JAY_DUBYA_TEE_SECRET" ]]; then
+    echo "expect \$JAY_DUBYA_TEE_SECRET to be set as in:"
+    echo "  JAY_DUBYA_TEE_SECRET=\$(pbpaste)"
+    echo "  JAY_DUBYA_TEE_SECRET=\$(xclip -selection clipboard -o)"
+    return 1
+  fi
+  JAY_DUBYA_TEE_EXP=$(node -e 'const TWO_WEEKS_MS = 1000 * 60 * 60 * 24 * 14; console.log(Math.round((Date.now() + TWO_WEEKS_MS)/ 1000))')
+  jwt encode --secret $JAY_DUBYA_TEE_SECRET --exp=$JAY_DUBYA_TEE_EXP --alg HS256 '{"role": "authenticated"}'
+}
