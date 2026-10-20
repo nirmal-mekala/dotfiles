@@ -460,6 +460,7 @@ var require_utc = __commonJS({
 // src/index.ts
 var index_exports = {};
 __export(index_exports, {
+  DEFAULT_KEYMAP: () => DEFAULT_KEYMAP,
   colors: () => colors,
   completeTask: () => completeTask,
   fetchSignal: () => fetchSignal,
@@ -467,6 +468,8 @@ __export(index_exports, {
   formatSignalUpdatedAt: () => formatSignalUpdatedAt,
   formatSignals: () => formatSignals,
   groupSignals: () => groupSignals,
+  parseKeymap: () => parseKeymap,
+  readKeymapConfig: () => readKeymapConfig,
   renderTuiBuffer: () => renderTuiBuffer,
   replaceSignals: () => replaceSignals,
   resolveTask: () => resolveTask,
@@ -476,9 +479,163 @@ module.exports = __toCommonJS(index_exports);
 var import_node_path2 = require("node:path");
 var import_node_url = require("node:url");
 
-// src/api.ts
+// src/config.ts
 var import_node_fs = require("node:fs");
 var import_node_path = require("node:path");
+
+// src/keymap.ts
+var DEFAULT_BINDINGS = {
+  quit: ["q"],
+  "toggle-ok": ["o"],
+  refresh: ["r"],
+  complete: ["c"],
+  resolve: ["e"],
+  up: ["k", "\x1B[A"],
+  down: ["j", "\x1B[B"],
+  top: ["gg"],
+  bottom: ["G"]
+};
+var KEYMAP_COMMANDS = Object.keys(DEFAULT_BINDINGS);
+var NAMED_KEYS = {
+  enter: "\r",
+  space: " ",
+  tab: "	",
+  backspace: "\x7F",
+  up: "\x1B[A",
+  down: "\x1B[B",
+  right: "\x1B[C",
+  left: "\x1B[D"
+};
+var DEFAULT_KEYMAP = {
+  bindings: DEFAULT_BINDINGS,
+  labels: {}
+};
+function isKeymapCommand(value) {
+  return Object.hasOwn(DEFAULT_BINDINGS, value);
+}
+function describeKeySequence(sequence) {
+  const name = Object.keys(NAMED_KEYS).find((key) => NAMED_KEYS[key] === sequence);
+  return name ?? JSON.stringify(sequence);
+}
+function parseKey(command, value) {
+  if (typeof value !== "string") {
+    throw new Error(`keymap.${command} must be a string`);
+  }
+  const name = value.toLowerCase();
+  const namedSequence = Object.hasOwn(NAMED_KEYS, name) ? NAMED_KEYS[name] : void 0;
+  if (namedSequence !== void 0) {
+    return { sequence: namedSequence, label: name };
+  }
+  if (Array.from(value).length !== 1 || new RegExp("\\p{Cc}", "u").test(value)) {
+    throw new Error(
+      `keymap.${command} must be a single printable character or one of: ${Object.keys(
+        NAMED_KEYS
+      ).join(", ")} (got ${JSON.stringify(value)})`
+    );
+  }
+  return { sequence: value, label: value === " " ? "space" : value };
+}
+function validateBindings(bindings) {
+  const entries = KEYMAP_COMMANDS.flatMap(
+    (command) => bindings[command].map((sequence) => ({ command, sequence }))
+  );
+  for (let index = 0; index < entries.length; index += 1) {
+    for (let otherIndex = index + 1; otherIndex < entries.length; otherIndex += 1) {
+      const a = entries[index];
+      const b = entries[otherIndex];
+      if (a.command === b.command) {
+        continue;
+      }
+      if (a.sequence.startsWith(b.sequence) || b.sequence.startsWith(a.sequence)) {
+        throw new Error(
+          `keymap conflict: "${a.command}" (${describeKeySequence(
+            a.sequence
+          )}) and "${b.command}" (${describeKeySequence(
+            b.sequence
+          )}) overlap. Remap one of them.`
+        );
+      }
+    }
+  }
+}
+function parseKeymap(value) {
+  if (value === void 0) {
+    return DEFAULT_KEYMAP;
+  }
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    throw new Error("keymap must be a JSON object mapping commands to keys");
+  }
+  const bindings = { ...DEFAULT_BINDINGS };
+  const labels = {};
+  for (const [command, key] of Object.entries(value)) {
+    if (!isKeymapCommand(command)) {
+      throw new Error(
+        `Unknown keymap command "${command}". Valid commands: ${KEYMAP_COMMANDS.join(
+          ", "
+        )}`
+      );
+    }
+    const { sequence, label } = parseKey(command, key);
+    bindings[command] = [sequence];
+    labels[command] = label;
+  }
+  validateBindings(bindings);
+  return { bindings, labels };
+}
+function matchKeySequence(keymap, sequence) {
+  let isPrefix = false;
+  for (const command of KEYMAP_COMMANDS) {
+    for (const binding of keymap.bindings[command]) {
+      if (binding === sequence) {
+        return command;
+      }
+      if (binding.startsWith(sequence)) {
+        isPrefix = true;
+      }
+    }
+  }
+  return isPrefix ? "pending" : null;
+}
+
+// src/config.ts
+function getDashConfigPath() {
+  const home = process.env.HOME;
+  if (!home) {
+    throw new Error(
+      "HOME is required to read ~/.config/dash/config.json when Dash environment variables are missing."
+    );
+  }
+  return (0, import_node_path.join)(home, ".config", "dash", "config.json");
+}
+function readDashConfigFile() {
+  const configPath = getDashConfigPath();
+  if (!(0, import_node_fs.existsSync)(configPath)) {
+    return {};
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse((0, import_node_fs.readFileSync)(configPath, "utf8"));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to read ${configPath}: ${message}`);
+  }
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    throw new Error(`${configPath} must contain a JSON object.`);
+  }
+  return parsed;
+}
+function readKeymapConfig() {
+  if (!process.env.HOME) {
+    return DEFAULT_KEYMAP;
+  }
+  const config = readDashConfigFile();
+  try {
+    return parseKeymap(config.keymap);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`${getDashConfigPath()}: ${message}`);
+  }
+}
 
 // src/constants.ts
 var colors = {
@@ -568,32 +725,6 @@ function buildSignalUrl(baseUrl, slug, refresh) {
 }
 function buildTaskUrl(baseUrl, slug) {
   return new URL(`/api/tasks/${encodeURIComponent(slug)}`, baseUrl);
-}
-function getDashConfigPath() {
-  const home = process.env.HOME;
-  if (!home) {
-    throw new Error(
-      "HOME is required to read ~/.config/dash/config.json when Dash environment variables are missing."
-    );
-  }
-  return (0, import_node_path.join)(home, ".config", "dash", "config.json");
-}
-function readDashConfigFile() {
-  const configPath = getDashConfigPath();
-  if (!(0, import_node_fs.existsSync)(configPath)) {
-    return {};
-  }
-  let parsed;
-  try {
-    parsed = JSON.parse((0, import_node_fs.readFileSync)(configPath, "utf8"));
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to read ${configPath}: ${message}`);
-  }
-  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-    throw new Error(`${configPath} must contain a JSON object.`);
-  }
-  return parsed;
 }
 function resolveConfigValue(envValue, fileValue) {
   if (envValue !== void 0 && envValue !== "") {
@@ -741,9 +872,9 @@ function jumpSelection(state, displaySignalIndexes, position) {
   }
   state.selectedSignalIndex = position === "top" ? displaySignalIndexes[0] : displaySignalIndexes[displaySignalIndexes.length - 1];
 }
-async function waitForTuiInput(onMove, onJump, onToggleOkVisibility, onRefresh, onComplete, onResolve) {
+async function waitForTuiInput(onMove, onJump, onToggleOkVisibility, onRefresh, onComplete, onResolve, keymap = DEFAULT_KEYMAP) {
   return new Promise((resolve2) => {
-    let pendingG = false;
+    let pendingSequence = "";
     let isRunningAction = false;
     const done = (reason) => {
       process.stdin.off("data", onData);
@@ -763,75 +894,55 @@ async function waitForTuiInput(onMove, onJump, onToggleOkVisibility, onRefresh, 
     };
     const onData = async (data) => {
       const input = data.toString("utf8");
-      for (let index = 0; index < input.length; index += 1) {
-        const key = input[index];
-        if (key === "q") {
-          pendingG = false;
-          done("quit");
-          return;
-        }
+      if (pendingSequence.startsWith("\x1B")) {
+        pendingSequence = "";
+      }
+      for (const key of input) {
         if (key === "" || key === "") {
-          pendingG = false;
+          pendingSequence = "";
           done("interrupt");
           return;
         }
-        if (input.startsWith("\x1B[A", index)) {
-          pendingG = false;
-          onMove(-1);
-          index += 2;
+        let sequence = `${pendingSequence}${key}`;
+        let command = matchKeySequence(keymap, sequence);
+        if (command === null && pendingSequence !== "") {
+          sequence = key;
+          command = matchKeySequence(keymap, sequence);
+        }
+        if (command === "pending") {
+          pendingSequence = sequence;
           continue;
         }
-        if (input.startsWith("\x1B[B", index)) {
-          pendingG = false;
-          onMove(1);
-          index += 2;
-          continue;
-        }
-        if (key === "G") {
-          pendingG = false;
-          onJump("bottom");
-          continue;
-        }
-        if (key === "g") {
-          if (pendingG) {
-            pendingG = false;
+        pendingSequence = "";
+        switch (command) {
+          case "quit":
+            done("quit");
+            return;
+          case "up":
+            onMove(-1);
+            break;
+          case "down":
+            onMove(1);
+            break;
+          case "top":
             onJump("top");
-            continue;
-          }
-          pendingG = true;
-          continue;
+            break;
+          case "bottom":
+            onJump("bottom");
+            break;
+          case "refresh":
+            await runAction(onRefresh);
+            break;
+          case "toggle-ok":
+            await runAction(onToggleOkVisibility);
+            break;
+          case "complete":
+            await runAction(onComplete);
+            break;
+          case "resolve":
+            await runAction(onResolve);
+            break;
         }
-        if (key === "k") {
-          pendingG = false;
-          onMove(-1);
-          continue;
-        }
-        if (key === "j") {
-          pendingG = false;
-          onMove(1);
-          continue;
-        }
-        if (key === "r") {
-          pendingG = false;
-          await runAction(onRefresh);
-          continue;
-        }
-        if (key === "o") {
-          pendingG = false;
-          await runAction(onToggleOkVisibility);
-          continue;
-        }
-        if (key === "c") {
-          pendingG = false;
-          await runAction(onComplete);
-          continue;
-        }
-        if (key === "e") {
-          pendingG = false;
-          await runAction(onResolve);
-          continue;
-        }
-        pendingG = false;
       }
     };
     const onSigint = () => done("interrupt");
@@ -939,18 +1050,25 @@ function formatIsoDateTimesInText(text, userTimezone = getUserTimezone()) {
 }
 
 // src/render.ts
-function buildHelpText(selectedSignal, hideOkSignals, separator = HELP_TEXT_SEPARATOR) {
+function formatHelpItem(keymap, command, label, mnemonicIndex) {
   const itemColor = colors.gray;
   const keyColor = colors.white;
+  const keyLabel = keymap.labels[command];
+  if (keyLabel !== void 0) {
+    return `${label} [${keyColor}${keyLabel}${itemColor}]`;
+  }
+  return `${label.slice(0, mnemonicIndex)}${keyColor}${label[mnemonicIndex]}${itemColor}${label.slice(mnemonicIndex + 1)}`;
+}
+function buildHelpText(selectedSignal, hideOkSignals, keymap, separator = HELP_TEXT_SEPARATOR) {
   const items = [
-    `${keyColor}q${itemColor}uit`,
-    hideOkSignals ? `show ${keyColor}o${itemColor}k` : `hide ${keyColor}o${itemColor}k`
+    formatHelpItem(keymap, "quit", "quit", 0),
+    formatHelpItem(keymap, "toggle-ok", hideOkSignals ? "show ok" : "hide ok", 5)
   ];
   if (selectedSignal) {
-    items.push(`${keyColor}r${itemColor}efresh`);
+    items.push(formatHelpItem(keymap, "refresh", "refresh", 0));
     if (selectedSignal.source.managedTask) {
-      items.push(`${keyColor}c${itemColor}omplete`);
-      items.push(`r${keyColor}e${itemColor}solve`);
+      items.push(formatHelpItem(keymap, "complete", "complete", 0));
+      items.push(formatHelpItem(keymap, "resolve", "resolve", 1));
     }
   }
   return items.join(separator);
@@ -1120,6 +1238,7 @@ function renderTuiBuffer(signals, terminalWidth = 80, terminalHeight = 24, userT
   const helpText = buildHelpText(
     selectedSignal,
     options.hideOkSignals ?? false,
+    options.keymap ?? DEFAULT_KEYMAP,
     options.ascii ? ASCII_HELP_TEXT_SEPARATOR : HELP_TEXT_SEPARATOR
   );
   const footerIndent = FOOTER_INDENT + getMarkerWidthOffset(options.ascii ?? false);
@@ -1153,7 +1272,7 @@ function renderTuiBuffer(signals, terminalWidth = 80, terminalHeight = 24, userT
 }
 
 // src/terminal.ts
-function createTuiRenderer(signals, state, userTimezone = getUserTimezone(), renderOptions = {}) {
+function createTuiRenderer(signals, state, userTimezone = getUserTimezone(), keymap = DEFAULT_KEYMAP, renderOptions = {}) {
   let previousLines = null;
   return (force = false) => {
     const buffer = renderTuiBuffer(
@@ -1161,7 +1280,7 @@ function createTuiRenderer(signals, state, userTimezone = getUserTimezone(), ren
       process.stdout.columns || 80,
       process.stdout.rows || 24,
       userTimezone,
-      { ...state, ...renderOptions }
+      { ...state, keymap, ...renderOptions }
     );
     const lines = buffer.split("\n");
     if (force || previousLines === null) {
@@ -1218,7 +1337,7 @@ async function waitForMinimumLoadingDuration(startedAtMs, now = () => performanc
     await wait(remainingMs);
   }
 }
-async function runTui(signals, renderOptions = {}) {
+async function runTui(signals, keymap = DEFAULT_KEYMAP, renderOptions = {}) {
   const stdinWasPaused = process.stdin.isPaused();
   const rawModeWasEnabled = process.stdin.isTTY ? process.stdin.isRaw : false;
   let exitReason = "quit";
@@ -1229,7 +1348,13 @@ async function runTui(signals, renderOptions = {}) {
     loadingSignalIndexes: /* @__PURE__ */ new Set(),
     loadingFrame: 0
   };
-  const render = createTuiRenderer(signals, state, void 0, renderOptions);
+  const render = createTuiRenderer(
+    signals,
+    state,
+    void 0,
+    keymap,
+    renderOptions
+  );
   let loadingInterval = null;
   let fullRefreshInterval = null;
   let isRowActionRunning = false;
@@ -1399,7 +1524,8 @@ async function runTui(signals, renderOptions = {}) {
       toggleOkVisibilityAndRender,
       refreshSelectedSignal,
       completeSelectedTask,
-      resolveSelectedTask
+      resolveSelectedTask,
+      keymap
     );
   } finally {
     if (fullRefreshInterval !== null) {
@@ -1435,8 +1561,9 @@ function isMainModule() {
 if (isMainModule()) {
   (async () => {
     try {
+      const keymap = readKeymapConfig();
       const response = await fetchSignals();
-      const exitReason = await runTui(response.data, {
+      const exitReason = await runTui(response.data, keymap, {
         ascii: process.argv.includes("--ascii")
       });
       process.exit(exitReason === "interrupt" ? 130 : 0);
@@ -1449,6 +1576,7 @@ if (isMainModule()) {
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  DEFAULT_KEYMAP,
   colors,
   completeTask,
   fetchSignal,
@@ -1456,6 +1584,8 @@ if (isMainModule()) {
   formatSignalUpdatedAt,
   formatSignals,
   groupSignals,
+  parseKeymap,
+  readKeymapConfig,
   renderTuiBuffer,
   replaceSignals,
   resolveTask,
