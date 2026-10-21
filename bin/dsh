@@ -493,7 +493,8 @@ var DEFAULT_BINDINGS = {
   up: ["k", "\x1B[A"],
   down: ["j", "\x1B[B"],
   top: ["gg"],
-  bottom: ["G"]
+  bottom: ["G"],
+  wake: ["w"]
 };
 var KEYMAP_COMMANDS = Object.keys(DEFAULT_BINDINGS);
 var NAMED_KEYS = {
@@ -680,7 +681,6 @@ var LOADING_MIN_VISIBLE_MS = 250;
 var FULL_REFRESH_INTERVAL_MS = 5 * 60 * 1e3;
 var IDLE_TIMEOUT_MS = 5 * 60 * 1e3;
 var SLEEP_ANIMATION_INTERVAL_MS = 600;
-var SLEEP_HELP_TEXT = "press any key to wake";
 var SLEEP_ART = [
   "                                _",
   "                               ( `.",
@@ -903,7 +903,7 @@ function jumpSelection(state, displaySignalIndexes, position) {
   }
   state.selectedSignalIndex = position === "top" ? displaySignalIndexes[0] : displaySignalIndexes[displaySignalIndexes.length - 1];
 }
-async function waitForTuiInput(onMove, onJump, onToggleOkVisibility, onRefresh, onComplete, onResolve, onActivity, keymap = DEFAULT_KEYMAP) {
+async function waitForTuiInput(onMove, onJump, onToggleOkVisibility, onRefresh, onComplete, onResolve, isSleeping, onWake, onActivity, keymap = DEFAULT_KEYMAP) {
   return new Promise((resolve2) => {
     let pendingSequence = "";
     let isRunningAction = false;
@@ -925,10 +925,8 @@ async function waitForTuiInput(onMove, onJump, onToggleOkVisibility, onRefresh, 
     };
     const onData = async (data) => {
       const input = data.toString("utf8");
-      const isInterrupt = input.includes("") || input.includes("");
-      if (onActivity() && !isInterrupt) {
-        pendingSequence = "";
-        return;
+      if (!isSleeping()) {
+        onActivity();
       }
       if (pendingSequence.startsWith("\x1B")) {
         pendingSequence = "";
@@ -950,10 +948,18 @@ async function waitForTuiInput(onMove, onJump, onToggleOkVisibility, onRefresh, 
           continue;
         }
         pendingSequence = "";
+        if (isSleeping() && command !== "quit" && command !== "wake") {
+          continue;
+        }
         switch (command) {
           case "quit":
             done("quit");
             return;
+          case "wake":
+            if (isSleeping()) {
+              onWake();
+            }
+            break;
           case "up":
             onMove(-1);
             break;
@@ -1095,7 +1101,13 @@ function formatHelpItem(keymap, command, label, mnemonicIndex) {
   }
   return `${label.slice(0, mnemonicIndex)}${keyColor}${label[mnemonicIndex]}${itemColor}${label.slice(mnemonicIndex + 1)}`;
 }
-function buildHelpText(selectedSignal, hideOkSignals, keymap, separator = HELP_TEXT_SEPARATOR) {
+function buildHelpText(selectedSignal, hideOkSignals, keymap, separator = HELP_TEXT_SEPARATOR, sleeping = false) {
+  if (sleeping) {
+    return [
+      formatHelpItem(keymap, "quit", "quit", 0),
+      formatHelpItem(keymap, "wake", "wake", 0)
+    ].join(separator);
+  }
   const items = [
     formatHelpItem(keymap, "quit", "quit", 0),
     formatHelpItem(keymap, "toggle-ok", hideOkSignals ? "show ok" : "hide ok", 5)
@@ -1277,11 +1289,7 @@ function buildSleepLines(terminalWidth, viewportHeight, sleepFrame) {
     const text = line.slice(0, Math.max(0, terminalWidth - offset)).trimEnd();
     return text === "" ? "" : `${" ".repeat(offset)}${colors.blue}${text}${colors.reset}`;
   };
-  const blockLines = [
-    ...artLines.map((line) => center(line, artWidth)),
-    "",
-    center(SLEEP_HELP_TEXT, SLEEP_HELP_TEXT.length)
-  ];
+  const blockLines = artLines.map((line) => center(line, artWidth));
   const verticalOffset = Math.max(
     0,
     Math.floor((viewportHeight - blockLines.length) / 2)
@@ -1310,23 +1318,23 @@ function renderTuiBuffer(signals, terminalWidth = 80, terminalHeight = 24, userT
     selectedSignal,
     options.hideOkSignals ?? false,
     options.keymap ?? DEFAULT_KEYMAP,
-    options.ascii ? ASCII_HELP_TEXT_SEPARATOR : HELP_TEXT_SEPARATOR
+    options.ascii ? ASCII_HELP_TEXT_SEPARATOR : HELP_TEXT_SEPARATOR,
+    options.sleeping ?? false
   );
   const footerIndent = FOOTER_INDENT + getMarkerWidthOffset(options.ascii ?? false);
   const footer = `${" ".repeat(footerIndent)}${colors.gray}${helpText}${colors.reset}`;
-  const sleepFooter = `${" ".repeat(footerIndent)}${colors.blue}${SLEEP_HELP_TEXT}${colors.reset}`;
   if (terminalHeight <= 1) {
     return "";
   }
   if (terminalHeight === 2) {
-    return [options.sleeping ? sleepFooter : footer, ""].join("\n");
+    return [footer, ""].join("\n");
   }
   const viewportHeight = Math.max(0, terminalHeight - 3);
   if (options.sleeping) {
     return [
       ...buildSleepLines(terminalWidth, viewportHeight, options.sleepFrame ?? 0),
       "",
-      "",
+      footer,
       ""
     ].join("\n");
   }
@@ -1629,16 +1637,9 @@ async function runTui(signals, keymap = DEFAULT_KEYMAP, renderOptions = {}) {
     state.sleepFrame = 0;
     stopSleepAnimation();
     startFullRefreshInterval();
+    resetIdleTimeout();
     rerenderAll();
     void refreshAllSignals();
-  };
-  const onActivity = () => {
-    const wasSleeping = state.sleeping;
-    if (wasSleeping) {
-      wake();
-    }
-    resetIdleTimeout();
-    return wasSleeping;
   };
   process.stdout.write(`${ansi.enterAlternateScreen}${ansi.hideCursor}`);
   try {
@@ -1657,7 +1658,9 @@ async function runTui(signals, keymap = DEFAULT_KEYMAP, renderOptions = {}) {
       refreshSelectedSignal,
       completeSelectedTask,
       resolveSelectedTask,
-      onActivity,
+      () => state.sleeping,
+      wake,
+      resetIdleTimeout,
       keymap
     );
   } finally {
