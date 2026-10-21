@@ -669,10 +669,41 @@ var ASCII_ELLIPSIS = "...";
 var CARET = "\u276F";
 var ASCII_CARET = ">";
 var LOADING_SPINNER_FRAMES = ["\xB7", "\u273B", "\u273D", "\u2736", "\u2733", "\u2722"];
-var ASCII_LOADING_SPINNER_FRAMES = ["[|]", "[/]", "[-]", "[\\]"];
+var ASCII_LOADING_SPINNER_FRAMES = [
+  "[|]",
+  "[/]",
+  "[-]",
+  "[\\]"
+];
 var LOADING_SPINNER_INTERVAL_MS = 120;
 var LOADING_MIN_VISIBLE_MS = 250;
 var FULL_REFRESH_INTERVAL_MS = 5 * 60 * 1e3;
+var IDLE_TIMEOUT_MS = 5 * 60 * 1e3;
+var SLEEP_ANIMATION_INTERVAL_MS = 600;
+var SLEEP_HELP_TEXT = "press any key to wake";
+var SLEEP_ART = [
+  "                                _",
+  "                               ( `.",
+  "                 _,--------.__  ))\\`.",
+  '             _,-"   ,::::.    `(( (  \\___',
+  "           ,'      .:::::'      \\`-\\ |   `-.",
+  "         ,'     ___                         \\",
+  "        /     -'   `-.               .    ;; \\",
+  "       :::          : \\    :         ~)       )-._",
+  "       ;::          :: |   .      .  :       /::._)",
+  "      ( `:          ;  :  /: .    (  :__ .,~/_.-'",
+  "      /__ :        .__/_ (:' ,--.  `./o `.|'",
+  "     ((_\\`.    `:.      `-.._    `.__`._o )",
+  '-hrr- `-\'  `""`.____,-.___/`_\\______ """"`.',
+  "                          `-`       `-. ,\\_\\",
+  "                                       `-'"
+];
+var SLEEP_SNORES = [
+  { row: 8, column: 52, text: "z" },
+  { row: 7, column: 55, text: "z" },
+  { row: 5, column: 57, text: "Z" },
+  { row: 2, column: 58, text: "Z" }
+];
 var AOK_ART = [
   "      ___           ___           ___",
   "     /\\  \\         /\\  \\         /|  |",
@@ -872,7 +903,7 @@ function jumpSelection(state, displaySignalIndexes, position) {
   }
   state.selectedSignalIndex = position === "top" ? displaySignalIndexes[0] : displaySignalIndexes[displaySignalIndexes.length - 1];
 }
-async function waitForTuiInput(onMove, onJump, onToggleOkVisibility, onRefresh, onComplete, onResolve, keymap = DEFAULT_KEYMAP) {
+async function waitForTuiInput(onMove, onJump, onToggleOkVisibility, onRefresh, onComplete, onResolve, onActivity, keymap = DEFAULT_KEYMAP) {
   return new Promise((resolve2) => {
     let pendingSequence = "";
     let isRunningAction = false;
@@ -894,6 +925,11 @@ async function waitForTuiInput(onMove, onJump, onToggleOkVisibility, onRefresh, 
     };
     const onData = async (data) => {
       const input = data.toString("utf8");
+      const isInterrupt = input.includes("") || input.includes("");
+      if (onActivity() && !isInterrupt) {
+        pendingSequence = "";
+        return;
+      }
       if (pendingSequence.startsWith("\x1B")) {
         pendingSequence = "";
       }
@@ -1220,6 +1256,41 @@ function buildAokLines(terminalWidth, viewportHeight) {
   }
   return lines;
 }
+function buildSleepLines(terminalWidth, viewportHeight, sleepFrame) {
+  if (viewportHeight <= 0) {
+    return [];
+  }
+  const snoreCount = sleepFrame % (SLEEP_SNORES.length + 1);
+  const artWidth = Math.max(
+    ...SLEEP_ART.map((line) => line.length),
+    ...SLEEP_SNORES.map((snore) => snore.column + snore.text.length)
+  );
+  const artLines = SLEEP_ART.map((line) => line.padEnd(artWidth));
+  for (const snore of SLEEP_SNORES.slice(0, snoreCount)) {
+    const line = artLines[snore.row];
+    artLines[snore.row] = `${line.slice(0, snore.column)}${snore.text}${line.slice(
+      snore.column + snore.text.length
+    )}`;
+  }
+  const center = (line, width) => {
+    const offset = Math.max(0, Math.floor((terminalWidth - width) / 2));
+    const text = line.slice(0, Math.max(0, terminalWidth - offset)).trimEnd();
+    return text === "" ? "" : `${" ".repeat(offset)}${colors.blue}${text}${colors.reset}`;
+  };
+  const blockLines = [
+    ...artLines.map((line) => center(line, artWidth)),
+    "",
+    center(SLEEP_HELP_TEXT, SLEEP_HELP_TEXT.length)
+  ];
+  const verticalOffset = Math.max(
+    0,
+    Math.floor((viewportHeight - blockLines.length) / 2)
+  );
+  return Array.from(
+    { length: viewportHeight },
+    (_, row) => blockLines[row - verticalOffset] ?? ""
+  );
+}
 function renderTuiBuffer(signals, terminalWidth = 80, terminalHeight = 24, userTimezone = getUserTimezone(), options = {}) {
   const contentRows = buildSignalRows(
     signals,
@@ -1243,13 +1314,22 @@ function renderTuiBuffer(signals, terminalWidth = 80, terminalHeight = 24, userT
   );
   const footerIndent = FOOTER_INDENT + getMarkerWidthOffset(options.ascii ?? false);
   const footer = `${" ".repeat(footerIndent)}${colors.gray}${helpText}${colors.reset}`;
+  const sleepFooter = `${" ".repeat(footerIndent)}${colors.blue}${SLEEP_HELP_TEXT}${colors.reset}`;
   if (terminalHeight <= 1) {
     return "";
   }
   if (terminalHeight === 2) {
-    return [footer, ""].join("\n");
+    return [options.sleeping ? sleepFooter : footer, ""].join("\n");
   }
   const viewportHeight = Math.max(0, terminalHeight - 3);
+  if (options.sleeping) {
+    return [
+      ...buildSleepLines(terminalWidth, viewportHeight, options.sleepFrame ?? 0),
+      "",
+      "",
+      ""
+    ].join("\n");
+  }
   if ((options.hideOkSignals ?? false) && contentRows.length === 0) {
     return [
       ...buildAokLines(terminalWidth, viewportHeight),
@@ -1346,7 +1426,9 @@ async function runTui(signals, keymap = DEFAULT_KEYMAP, renderOptions = {}) {
     scrollOffset: 0,
     hideOkSignals: false,
     loadingSignalIndexes: /* @__PURE__ */ new Set(),
-    loadingFrame: 0
+    loadingFrame: 0,
+    sleeping: false,
+    sleepFrame: 0
   };
   const render = createTuiRenderer(
     signals,
@@ -1357,6 +1439,8 @@ async function runTui(signals, keymap = DEFAULT_KEYMAP, renderOptions = {}) {
   );
   let loadingInterval = null;
   let fullRefreshInterval = null;
+  let sleepAnimationInterval = null;
+  let idleTimeout = null;
   let isRowActionRunning = false;
   let isFullRefreshRunning = false;
   const rerender = () => render();
@@ -1507,6 +1591,55 @@ async function runTui(signals, keymap = DEFAULT_KEYMAP, renderOptions = {}) {
       () => resolveTask(selectedSignal.source.slug)
     );
   };
+  const startFullRefreshInterval = () => {
+    fullRefreshInterval = setInterval(() => {
+      void refreshAllSignals();
+    }, FULL_REFRESH_INTERVAL_MS);
+  };
+  const stopFullRefreshInterval = () => {
+    if (fullRefreshInterval !== null) {
+      clearInterval(fullRefreshInterval);
+      fullRefreshInterval = null;
+    }
+  };
+  const stopSleepAnimation = () => {
+    if (sleepAnimationInterval !== null) {
+      clearInterval(sleepAnimationInterval);
+      sleepAnimationInterval = null;
+    }
+  };
+  const goToSleep = () => {
+    state.sleeping = true;
+    state.sleepFrame = 0;
+    stopFullRefreshInterval();
+    sleepAnimationInterval = setInterval(() => {
+      state.sleepFrame += 1;
+      rerender();
+    }, SLEEP_ANIMATION_INTERVAL_MS);
+    rerenderAll();
+  };
+  const resetIdleTimeout = () => {
+    if (idleTimeout !== null) {
+      clearTimeout(idleTimeout);
+    }
+    idleTimeout = setTimeout(goToSleep, IDLE_TIMEOUT_MS);
+  };
+  const wake = () => {
+    state.sleeping = false;
+    state.sleepFrame = 0;
+    stopSleepAnimation();
+    startFullRefreshInterval();
+    rerenderAll();
+    void refreshAllSignals();
+  };
+  const onActivity = () => {
+    const wasSleeping = state.sleeping;
+    if (wasSleeping) {
+      wake();
+    }
+    resetIdleTimeout();
+    return wasSleeping;
+  };
   process.stdout.write(`${ansi.enterAlternateScreen}${ansi.hideCursor}`);
   try {
     if (process.stdin.isTTY) {
@@ -1515,9 +1648,8 @@ async function runTui(signals, keymap = DEFAULT_KEYMAP, renderOptions = {}) {
     process.stdin.resume();
     process.stdout.on("resize", rerenderAll);
     rerenderAll();
-    fullRefreshInterval = setInterval(() => {
-      void refreshAllSignals();
-    }, FULL_REFRESH_INTERVAL_MS);
+    startFullRefreshInterval();
+    resetIdleTimeout();
     exitReason = await waitForTuiInput(
       moveAndRender,
       jumpAndRender,
@@ -1525,11 +1657,14 @@ async function runTui(signals, keymap = DEFAULT_KEYMAP, renderOptions = {}) {
       refreshSelectedSignal,
       completeSelectedTask,
       resolveSelectedTask,
+      onActivity,
       keymap
     );
   } finally {
-    if (fullRefreshInterval !== null) {
-      clearInterval(fullRefreshInterval);
+    stopFullRefreshInterval();
+    stopSleepAnimation();
+    if (idleTimeout !== null) {
+      clearTimeout(idleTimeout);
     }
     if (loadingInterval !== null) {
       clearInterval(loadingInterval);
