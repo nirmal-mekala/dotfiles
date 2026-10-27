@@ -1067,6 +1067,30 @@ function truncateWithEllipsis(value, maxLength, ellipsis = ELLIPSIS) {
   }
   return `${value.slice(0, maxLength - ellipsis.length)}${ellipsis}`;
 }
+var ANSI_ESCAPE_PATTERN = /\x1b\[[0-9;]*m/y;
+function truncateAnsiWithEllipsis(value, maxLength, ellipsis = ELLIPSIS) {
+  const visibleLength = value.replace(/\x1b\[[0-9;]*m/g, "").length;
+  if (visibleLength <= maxLength) {
+    return value;
+  }
+  const keepLength = Math.max(0, maxLength - ellipsis.length);
+  let result = "";
+  let kept = 0;
+  let index = 0;
+  while (index < value.length && kept < keepLength) {
+    ANSI_ESCAPE_PATTERN.lastIndex = index;
+    const escape = ANSI_ESCAPE_PATTERN.exec(value);
+    if (escape) {
+      result += escape[0];
+      index += escape[0].length;
+      continue;
+    }
+    result += value[index];
+    kept += 1;
+    index += 1;
+  }
+  return `${result}${truncateWithEllipsis(ellipsis, maxLength - kept, ellipsis)}`;
+}
 
 // src/time.ts
 var import_dayjs = __toESM(require_dayjs_min());
@@ -1127,20 +1151,22 @@ function getMarkerWidth(ascii) {
 function getMarkerWidthOffset(ascii) {
   return getMarkerWidth(ascii) - getMarkerWidth(false);
 }
+function getHorizontalMargin(showSelectionGutter) {
+  return showSelectionGutter ? 3 : TEXT_INDENT;
+}
 function buildSignalRows(signals, terminalWidth = 80, userTimezone = getUserTimezone(), options = {}) {
   const markerWidth = getMarkerWidth(options.ascii ?? false);
   const markerWidthOffset = getMarkerWidthOffset(options.ascii ?? false);
   const ellipsis = options.ascii ? ASCII_ELLIPSIS : ELLIPSIS;
   const watchSymbol = options.ascii ? ASCII_WATCH_TEXT_SYMBOL : WATCH_TEXT_SYMBOL;
   const signalIndentWidth = options.showSelectionGutter ? 1 : TEXT_INDENT;
-  const signalPrefixWidth = options.showSelectionGutter ? 2 : 0;
-  const maxTextLength = Math.max(
-    0,
-    terminalWidth - signalIndentWidth - signalPrefixWidth
+  const horizontalMargin = getHorizontalMargin(
+    options.showSelectionGutter ?? false
   );
+  const maxTextLength = Math.max(0, terminalWidth - horizontalMargin * 2);
   const maxHeaderLength = Math.max(
     0,
-    terminalWidth - HEADER_INDENT - markerWidthOffset
+    terminalWidth - HEADER_INDENT - markerWidthOffset - horizontalMargin
   );
   const signalNameWidth = Math.min(
     Math.max(0, maxTextLength - markerWidth),
@@ -1322,7 +1348,15 @@ function renderTuiBuffer(signals, terminalWidth = 80, terminalHeight = 24, userT
     options.sleeping ?? false
   );
   const footerIndent = FOOTER_INDENT + getMarkerWidthOffset(options.ascii ?? false);
-  const footer = `${" ".repeat(footerIndent)}${colors.gray}${helpText}${colors.reset}`;
+  const maxFooterLength = Math.max(
+    0,
+    terminalWidth - footerIndent - getHorizontalMargin(options.showSelectionGutter ?? true)
+  );
+  const footer = `${" ".repeat(footerIndent)}${colors.gray}${truncateAnsiWithEllipsis(
+    helpText,
+    maxFooterLength,
+    options.ascii ? ASCII_ELLIPSIS : ELLIPSIS
+  )}${colors.reset}`;
   if (terminalHeight <= 1) {
     return "";
   }
