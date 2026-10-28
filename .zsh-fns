@@ -347,10 +347,14 @@ function rmnl() {
   awk '{printf "%s", $0}'
 }
 
-function fh() {
+function find_hist_entry() {
   # List history without numbers, reverse so newest are first,
-  # escape backslashes, then fuzzy-find and eval.
-  eval "$(fc -ln 1 | tac | sed -E 's/\\/\\\\/g' | fzf)"
+  # escape backslashes, then fuzzy-find
+  fc -ln 1 | tac | sed -E 's/\\/\\\\/g' | fzf
+}
+
+function fh() {
+  eval "$(find_hist_entry)"
 }
 
 function mkncd() { mkdir -p "$1" && cd "$1"; }
