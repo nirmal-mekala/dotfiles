@@ -184,7 +184,7 @@
                                     "key_code": "i",
                                     "modifiers": { "optional": ["any"] }
                                 },
-                                "to": [{ "software_function": { "open_application": { "file_path": "/Applications/iTerm.app" } } }],
+                                "to": [{ "software_function": { "open_application": { "file_path": "/Applications/Ghostty.app" } } }],
                                 "type": "basic"
                             },
                             {
