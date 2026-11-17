@@ -40,7 +40,7 @@ It will backup existing files and skip if a symlink already exists.
 - karabiner elements (macOS keybindings) setup
 - `z` for fast directory jumping
 - `tmux` config and scripts
-- terminal config: iTerm (macOS), xterm, kitty
+- terminal config: iTerm (macOS), xterm, kitty, ghostty
 - a simple `i3` configuration
 - `bin` directory for scripts - `.zshrc` will add it to the path
 
