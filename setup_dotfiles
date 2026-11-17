@@ -48,6 +48,7 @@ SYMLINK_DATA=(
 "$DOTFILES_ROOT/rofi" "$DESTINATION_DIR/.config/rofi"
 "$DOTFILES_ROOT/kitty" "$DESTINATION_DIR/.config/kitty"
 "$DOTFILES_ROOT/i3status" "$DESTINATION_DIR/.config/i3status"
+"$DOTFILES_ROOT/ghostty" "$DESTINATION_DIR/.config/ghostty"
 )
 TOTAL_SPECIAL_CASES=$(( ${#SYMLINK_DATA[@]} / 2 - 1 ))
 
