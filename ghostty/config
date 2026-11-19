@@ -3,6 +3,11 @@ font-family = FiraCode Nerd Font Mono
 font-size = 16
 font-style-bold = Regular
 
+
+# --- Keybindings ---
+keybind = cmd+u=toggle_background_opacity
+
+
 # --- Appearance ---
 cursor-style = block
 shell-integration-features = no-cursor
